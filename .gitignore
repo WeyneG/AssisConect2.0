@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-# Logs
-logs
-*.log
-=======
 # Dependências
 /node_modules
 
@@ -13,25 +8,12 @@ logs
 /out
 
 # Logs
->>>>>>> origin/main
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-<<<<<<< HEAD
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-=======
 # Sistema operacional
 .DS_Store
 Thumbs.db
@@ -39,14 +21,11 @@ Thumbs.db
 # Editor/IDE
 .vscode/
 .idea/
->>>>>>> origin/main
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-<<<<<<< HEAD
-=======
 
 # Testes e cobertura
 /coverage
@@ -63,4 +42,3 @@ Thumbs.db
 /.turbo
 /.parcel-cache
 /.next/cache
->>>>>>> origin/main
