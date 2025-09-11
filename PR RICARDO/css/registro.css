@@ -1,0 +1,218 @@
+/* ===== Tipografia (Satoshi) =====
+   Coloque os .woff2 em css/fonts/ ou ajuste as URLs abaixo */
+@font-face {
+  font-family: "Satoshi";
+  src: url("./fonts/Satoshi-Variable.woff2") format("woff2-variations"),
+       url("./fonts/Satoshi-Regular.woff2") format("woff2");
+  font-weight: 300 900;  /* var axis */
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Satoshi";
+  src: url("./fonts/Satoshi-Italic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ===== Design tokens ===== */
+:root {
+  /* Cores do mock */
+  --cor-bg-direita: #8297d9;   /* fundo painel direito e círculo */
+  --cor-bg-esquerda: #ffffff;  /* fundo painel esquerdo */
+  --cor-titulo: #ffffff;       /* “Registro” */
+  --cor-rotulo: #273251;       /* rótulos (Nome, E-mail, etc.) */
+  --cor-input-bg: #ffffff;     /* campos */
+  --cor-input-bd: #ffffff;     /* sem borda visível (mesma cor do bg) */
+  --cor-input-ph: #9aa6bf;     /* placeholder */
+  --cor-botao: #212b48;        /* botão “Registrar” */
+  --cor-botao-texto: #ffffff;
+  --cor-marca: #6372a1;        /* “Assist Conect” e subtítulo */
+
+  /* Tipografia (Satoshi) */
+  --font-base: "Satoshi", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  --w-light: 300;
+  --w-regular: 400;
+  --w-medium: 500;
+  --w-semibold: 600;
+  --w-bold: 700;
+  --w-black: 900;
+
+  /* Tamanhos aproximando o mock */
+  --fs-rotulo: 1rem;        /* ~16px */
+  --fs-titulo: 2.75rem;     /* “Registro” */
+  --fs-input: 1rem;
+  --fs-botao: 1.125rem;     /* 18px */
+  --fs-marca: 3rem;         /* “Assist Conect” */
+  --fs-marca-sub: 1rem;
+
+  /* Raio / sombras / espaçamento */
+  --raio-grande: 12px;
+  --sombra-leve: 0 1px 2px rgba(0,0,0,.05), 0 6px 24px rgba(0,0,0,.06);
+  --gap-2: .5rem;
+  --gap-3: .75rem;
+  --gap-4: 1rem;
+  --gap-6: 1.5rem;
+  --gap-8: 2rem;
+  --gap-10: 2.5rem;
+
+  --container-max: 1200px;
+}
+
+/* ===== Reset/estrutura base ===== */
+*,*::before,*::after{ box-sizing:border-box }
+html,body{ height:100% }
+body{
+  margin:0;
+  font-family:var(--font-base);
+  background: var(--cor-bg-esquerda);
+  color:#0f172a;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+}
+
+/* ===== Grade principal (split 40% / 60%) ===== */
+#tela_registro{
+  min-height:100svh;
+  display:grid;
+  grid-template-columns: 40% 60%;
+}
+@media (max-width: 1024px){
+  #tela_registro{ grid-template-columns:1fr; }
+}
+
+/* ===== Coluna esquerda (logo/ilustração/marca) ===== */
+#col_esquerda{
+  background: var(--cor-bg-esquerda);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding: clamp(24px, 5vw, 48px);
+  gap: clamp(24px, 6vh, 64px);
+}
+.bloco-avatar{
+  width: clamp(220px, 34vw, 380px);
+  aspect-ratio:1/1;
+  border-radius:50%;
+  background: var(--cor-bg-direita);
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+}
+.bloco-avatar > img{
+  max-width: 92%;
+  height:auto;
+  display:block;
+}
+
+.marca-wrap{
+  text-align:left;
+  width: min(520px, 80%);
+}
+.marca-titulo{
+  font-weight: var(--w-black);
+  font-size: var(--fs-marca);
+  line-height: 1.1;
+  color: var(--cor-marca);
+  margin: 0 0 .25em 0;
+  letter-spacing:.5px;
+}
+.marca-sub{
+  font-weight: var(--w-regular);
+  font-size: var(--fs-marca-sub);
+  color: var(--cor-marca);
+  opacity:.95;
+  margin:0;
+}
+
+/* ===== Coluna direita (formulário) ===== */
+#col_direita{
+  background: var(--cor-bg-direita);
+  display:grid;
+  place-items:center;
+  padding: clamp(24px, 4vw, 56px);
+}
+.form-wrap{
+  width:min(720px, 88%);
+  margin-inline:auto;
+}
+.form-titulo{
+  text-align:center;
+  color: var(--cor-titulo);
+  font-weight: var(--w-black);
+  font-size: var(--fs-titulo);
+  line-height:1.15;
+  margin: 0 0 1.8rem 0;
+}
+
+/* ===== Form ===== */
+#form_registro{
+  display:grid;
+  gap: var(--gap-6);
+}
+.grupo_campo{ display:grid; gap: var(--gap-2); }
+.rotulo_campo{
+  color: var(--cor-rotulo);
+  font-weight: var(--w-bold);
+  font-size: var(--fs-rotulo);
+}
+.campo_texto,
+.seletor{
+  width:100%;
+  padding: 14px 18px;
+  border-radius: var(--raio-grande);
+  border: 1px solid var(--cor-input-bd);
+  background: var(--cor-input-bg);
+  color:#0f172a;
+  font-size: var(--fs-input);
+  box-shadow: var(--sombra-leve);
+  outline: none;
+  transition: box-shadow .2s ease, transform .05s ease;
+}
+.campo_texto::placeholder{ color: var(--cor-input-ph); }
+.campo_texto:focus,
+.seletor:focus{ box-shadow: 0 0 0 3px rgba(255,255,255,.5); }
+
+.linha-dupla{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap: var(--gap-6);
+}
+@media (max-width:720px){
+  .linha-dupla{ grid-template-columns:1fr; }
+}
+
+/* Dropdown “Papel” parecido com o mock */
+.seletor{
+  appearance:none; -webkit-appearance:none; -moz-appearance:none;
+  background-image:
+     linear-gradient(45deg, transparent 50%, #2e3a5e 50%),
+     linear-gradient(135deg, #2e3a5e 50%, transparent 50%);
+  background-position:
+     calc(100% - 22px) calc(50% - 2px),
+     calc(100% - 16px) calc(50% - 2px);
+  background-size:6px 6px, 6px 6px;
+  background-repeat:no-repeat;
+  padding-right:48px;
+}
+
+/* Botão */
+.acoes_formulario{ display:grid; place-items:center; margin-top: .5rem; }
+.botao_principal{
+  background: var(--cor-botao);
+  color: var(--cor-botao-texto);
+  border:none;
+  border-radius: var(--raio-grande);
+  padding: 16px 34px;
+  font-weight: var(--w-bold);
+  font-size: var(--fs-botao);
+  cursor:pointer;
+  box-shadow: var(--sombra-leve);
+  transition: transform .06s ease, filter .18s ease, box-shadow .18s ease;
+}
+.botao_principal:hover{ filter: brightness(1.06); box-shadow: 0 10px 26px rgba(0,0,0,.12); }
+.botao_principal:active{ transform: translateY(1px); }
+
+/* Pequenos ajustes de espaçamento para parecer o mock */
+.form-wrap .grupo_campo + .grupo_campo{ margin-top: .25rem; }
