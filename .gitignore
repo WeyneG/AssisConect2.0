@@ -31,12 +31,7 @@ Thumbs.db
 /coverage
 /.nyc_output
 
-# Ambiente (NUNCA subir secrets)
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+
 
 # Cache
 /.turbo
