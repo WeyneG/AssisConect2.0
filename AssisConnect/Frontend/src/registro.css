@@ -1,0 +1,181 @@
+
+:root{
+  --blue: #7089d6;       /* azul do fundo/right e círculo */
+  --blue-dark: #1f2a44;  /* botão */
+  --blue-dark-hover: #18223a;
+  --white: #ffffff;
+  --text-dark: #0e1320;
+  --muted: #65708a;
+  --error-bg: #fde2e2;
+  --error-bd: #efb1b1;
+  --error-fg: #7a1f1f;
+  --radius: 10px;
+}
+
+/* GRID 2 colunas com divisão bem definida */
+#reg__grid{
+  width: 100vw;
+ height: 100vh;
+ min-height: 100vh;
+  display: grid;
+ grid-template-columns: 1.3fr 1fr; /* aumenta hero */
+}
+
+/* HERO ESQUERDO – fundo branco */
+.reg__hero{
+  background: var(--white);
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  padding: 40px 24px;
+  text-align: center;
+  gap: 14px;
+}
+.hero__circle{
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  background: var(--blue);
+  display: grid;
+  place-items: center;
+}
+.hero__circle img{
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 0;   
+  border: none; 
+}
+.hero__title{
+  margin: 10px 0 0;
+  font-weight: 800;
+  font-size: 60px;
+  color: #6b7fbe; /
+}
+.hero__subtitle{
+  margin: 0;
+  color: #98a3bf;
+  font-size: 30px;
+}
+
+/* PAINEL DIREITO – fundo azul */
+.reg__panel{
+  background: var(--blue);
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  padding: 40px 24px;
+}
+.panel__content{
+  width: min(520px, 90vw);
+}
+.panel__title{
+  text-align: center;
+  color: var(--white);
+  font-weight: 800;
+  font-size: 40px;
+  margin: 0 0 18px;
+}
+
+/* FORM EM COLUNA – inputs brancos arredondados */
+.panel__form{
+  display: grid;
+  gap: 10px;
+}
+.form__label{
+  color: var(--white);
+  font-size: 14px;
+}
+.form__input,
+.form__select{
+  width: 100%;
+  height: 38px;
+  background: var(--white);
+  color: var(--text-dark);
+  border: none;
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  outline: none;
+  box-shadow: inset 0 1px 0 rgba(0,0,0,.05);
+}
+.form__select{
+  appearance: auto;
+}
+
+/* ERROS */
+.panel__error{
+  background: var(--error-bg);
+  border: 1px solid var(--error-bd);
+  color: var(--error-fg);
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  margin: 6px 0 4px;
+}
+
+/* BOTÃO CENTRAL */
+.form__button{
+  margin: 14px auto 0;
+  height: 42px;
+  min-width: 160px;
+  padding: 0 20px;
+  border: none;
+  border-radius: 12px;
+  background: var(--blue-dark);
+  color: var(--white);
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 0 rgba(0,0,0,.16);
+  transition: transform .06s ease, filter .18s ease;
+}
+.form__button:hover{ background: var(--blue-dark-hover); }
+.form__button:active{ transform: translateY(1px); }
+.form__button:disabled{ opacity: .7; cursor: not-allowed; }
+
+/* link “Entrar” */
+.panel__switch{
+  text-align: center;
+  margin-top: 10px;
+  color: #e7ecff;
+  font-size: 14px;
+}
+.panel__switch a{
+  color: #0d1a66;
+  font-weight: 700;
+  text-decoration: none;
+}
+.panel__switch a:hover{ text-decoration: underline; }
+/* ==== reset e sizing para ocupar a página toda ==== */
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;       /* evita barra horizontal e “faixa” lateral */
+  background: #000;         /* será coberto pelo grid; pode ser qualquer cor */
+}
+
+/* ==== grid em tela cheia ==== */
+#reg__grid{
+  width: 100vw;             /* ocupa toda a largura */
+  height: 100vh;            /* ocupa toda a altura */
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+/* garante que as colunas preencham toda a altura */
+.reg__hero,
+.reg__panel{
+  height: 100%;
+  min-height: 100vh;
+}
+
+
+/* RESPONSIVO */
+@media (max-width: 880px){
+  #reg__grid{ grid-template-columns: 1fr; }
+  .reg__hero{ padding: 28px 20px; }
+  .hero__circle{ width: 180px; height: 180px; }
+  .panel__title{ font-size: 34px; }
+}

@@ -1,49 +1,141 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import "../registro.css";
+import HeroImg from "../assets/Logo-registro.png"; // ajuste se seu arquivo tiver outro nome
 
 export default function Register() {
-  const { register } = useAuth();
-  const navigate = useNavigate();
-  const [name, setName] = useState("");
+  const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState(null);
+  const [senha, setSenha] = useState("");
+  const [confirmar, setConfirmar] = useState("");
+  const [papel, setPapel] = useState("");
+  const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+  const { register } = useAuth();
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setErrors(null);
-    setLoading(true);
+    setErro("");
+
+    if (!nome.trim()) return setErro("Informe seu nome.");
+    if (!email.trim()) return setErro("Informe seu e-mail.");
+    if (senha.length < 6) return setErro("A senha deve ter no mínimo 6 caracteres.");
+    if (senha !== confirmar) return setErro("As senhas não conferem.");
+    if (!papel) return setErro("Selecione um papel.");
+
     try {
-      await register({ name, email, password });
-      navigate("/");
+      setLoading(true);
+      await register({
+        name: nome.trim(),
+        email: email.trim(),
+        password: senha,
+        role: papel, // admin | funcionario | familiar
+      });
+      navigate("/home");
     } catch (err) {
-      setErrors(err.response?.data || { error: "Falha no cadastro" });
+      console.error(err);
+      setErro(err?.userMessage || "Falha ao registrar. Tente novamente.");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="register-container">
-      <form onSubmit={handleSubmit} className="register-form">
-        <h2>Registrar</h2>
+    <div id="reg__grid">
+      {/* ESQUERDA – HERO */}
+      <aside className="reg__hero">
+        <div className="hero__circle">
+          <img src={HeroImg} alt="Assist Conect" />
+        </div>
+        <h1 className="hero__title">Assist Conect</h1>
+        <p className="hero__subtitle">Cuidar com organização, viver com tranquilidade!</p>
+      </aside>
 
-        <input placeholder="Seu nome" value={name} onChange={(e)=>setName(e.target.value)} className={errors?.name ? "input error" : "input"} />
-        {errors?.name && <small className="err">{errors.name}</small>}
+      {/* DIREITA – FORM */}
+      <main className="reg__panel">
+        <div className="panel__content">
+          <h2 className="panel__title">Registro</h2>
 
-        <input type="email" placeholder="email@dominio.com" value={email} onChange={(e)=>setEmail(e.target.value)} className={errors?.email ? "input error" : "input"} />
-        {errors?.email && <small className="err">{errors.email}</small>}
+          {erro && <div className="panel__error">{erro}</div>}
 
-        <input type="password" placeholder="Senha (mín. 6)" value={password} onChange={(e)=>setPassword(e.target.value)} className={errors?.password ? "input error" : "input"} />
-        {errors?.password && <small className="err">{errors.password}</small>}
+          <form className="panel__form" onSubmit={handleSubmit} noValidate>
+            <label className="form__label" htmlFor="nome">Nome</label>
+            <input
+              id="nome"
+              className="form__input"
+              type="text"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              placeholder=""
+              autoComplete="name"
+              required
+            />
 
-        {errors?.error && <small className="err">{errors.error}</small>}
+            <label className="form__label" htmlFor="email">E-mail</label>
+            <input
+              id="email"
+              className="form__input"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder=""
+              autoComplete="email"
+              required
+            />
 
-        <button type="submit" disabled={loading}>{loading ? "Enviando..." : "Criar conta"}</button>
-        <p>Já tem conta? <Link to="/login">Entrar</Link></p>
-      </form>
+            <label className="form__label" htmlFor="senha">Senha</label>
+            <input
+              id="senha"
+              className="form__input"
+              type="password"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              placeholder=""
+              autoComplete="new-password"
+              minLength={6}
+              required
+            />
+
+            <label className="form__label" htmlFor="confirmar">Confirmar senha</label>
+            <input
+              id="confirmar"
+              className="form__input"
+              type="password"
+              value={confirmar}
+              onChange={(e) => setConfirmar(e.target.value)}
+              placeholder=""
+              autoComplete="new-password"
+              minLength={6}
+              required
+            />
+
+            <label className="form__label" htmlFor="papel">Papel</label>
+            <select
+              id="papel"
+              className="form__select"
+              value={papel}
+              onChange={(e) => setPapel(e.target.value)}
+              required
+            >
+              <option value="">Selecione um papel...</option>
+              <option value="funcionario">Funcionário</option>
+              <option value="familiar">Familiar</option>
+              <option value="admin">Admin</option>
+            </select>
+
+            <button type="submit" className="form__button" disabled={loading}>
+              {loading ? "Registrando..." : "Registrar"}
+            </button>
+
+            <p className="panel__switch">
+              Já tem uma conta? <Link to="/">Entrar</Link>
+            </p>
+          </form>
+        </div>
+      </main>
     </div>
   );
 }
