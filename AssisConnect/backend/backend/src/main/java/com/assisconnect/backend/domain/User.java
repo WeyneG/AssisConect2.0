@@ -14,11 +14,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-/**
- * Mapeado para a tabela `usuarios` (id, nome, email, senha, role, data_criacao).
- * Campos do Java mantêm os nomes usados no projeto (name, passwordHash),
- * mas com @Column apontando para os nomes exigidos pelo banco.
- */
+
 @Entity
 @Table(name = "usuarios")
 public class User implements Serializable {
