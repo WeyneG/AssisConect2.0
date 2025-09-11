@@ -1,0 +1,25 @@
+Relatório de Atividades - Projeto Assist Conect
+
+Atividades realizadas até o momento:
+
+1. Criação de nova identidade visual:
+   - Desenvolvimento de uma nova logo para o projeto.
+   - Definição e aplicação de uma nova paleta de cores.
+
+2. Desenvolvimento do layout e design da página de Registro:
+   - Estruturação visual da página baseada no mockup definido.
+   - Organização dos elementos em duas colunas (lado esquerdo com marca, lado direito com formulário).
+
+3. Implementação inicial em HTML e CSS:
+   - Construção da página de Registro utilizando apenas HTML e CSS puro (sem frameworks).
+   - Estrutura semântica com seções separadas para apresentação e formulário.
+   - Estilização completa utilizando design tokens (cores, tipografia, espaçamento e responsividade).
+   - Campos de formulário com labels, placeholders e foco em acessibilidade.
+   - Criação de estilos para botões, inputs e dropdowns.
+
+4. Entregável atual:
+   - Página de Registro pronta em HTML e CSS.
+   - Documento preparado para que a equipe possa realizar as adaptações para React e demais integrações necessárias, conforme as avaliações listadas no GitHub do projeto.
+
+Autor: Ricardo Junior
+Data: 10/09/2025
