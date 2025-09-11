@@ -20,8 +20,8 @@ export function AuthProvider({ children }) {
     return data;
   }
 
-  async function register({ name, email, password }) {
-    const { data } = await api.post("/auth/register", { name, email, password });
+async function register({ name, email, password, role }) {
+    const { data } = await api.post("/auth/register", { name, email, password, role });
     if (!data?.token) throw new Error("Resposta do backend sem token");
     localStorage.setItem("token", data.token);
     setUser({ name: data.name, email: data.email });

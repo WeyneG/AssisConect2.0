@@ -1,165 +1,141 @@
 import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import "../registro.css";
-import LogoRegistro from "../assets/logo-registro.png";
-import { useNavigate } from "react-router-dom";
+import HeroImg from "../assets/Logo-registro.png"; // ajuste se seu arquivo tiver outro nome
 
-
-function Register() {
+export default function Register() {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmar, setConfirmar] = useState("");
   const [papel, setPapel] = useState("");
+  const [erro, setErro] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const navigate = useNavigate(); 
-  const handleSubmit = async (e) => {
+  const navigate = useNavigate();
+  const { register } = useAuth();
+
+  async function handleSubmit(e) {
     e.preventDefault();
+    setErro("");
 
-    if (!nome || !email || !senha || !confirmar || !papel) {
-      alert("Todos os campos são obrigatórios!");
-      return;
-    }
-
-    const regexEmail = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i;
-    if (!regexEmail.test(email)) {
-      alert("Digite um e-mail válido (ex: usuario@dominio.com)");
-      return;
-    }
-
-    if (senha.length < 6) {
-      alert("A senha deve ter no mínimo 6 caracteres!");
-      return;
-    }
-
-    if (senha !== confirmar) {
-      alert("As senhas não coincidem!");
-      return;
-    }
+    if (!nome.trim()) return setErro("Informe seu nome.");
+    if (!email.trim()) return setErro("Informe seu e-mail.");
+    if (senha.length < 6) return setErro("A senha deve ter no mínimo 6 caracteres.");
+    if (senha !== confirmar) return setErro("As senhas não conferem.");
+    if (!papel) return setErro("Selecione um papel.");
 
     try {
-      const response = await fetch("/usuarios", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ nome, email, senha, papel })
+      setLoading(true);
+      await register({
+        name: nome.trim(),
+        email: email.trim(),
+        password: senha,
+        role: papel, // admin | funcionario | familiar
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        alert(`Erro: ${errorData.message || "Falha no cadastro"}`);
-        return;
-      }
-
-      const data = await response.json();
-      alert("Cadastro realizado com sucesso!");
-      navigate("/login");
-      
-      console.log("Resposta do backend:", data);
-    
-    } catch (error) {
-      console.error("Erro ao enviar dados:", error);
-      alert("Erro de conexão com o servidor. Tente novamente.");
+      navigate("/home");
+    } catch (err) {
+      console.error(err);
+      setErro(err?.userMessage || "Falha ao registrar. Tente novamente.");
+    } finally {
+      setLoading(false);
     }
-
-  };
+  }
 
   return (
-    <main id="tela_registro">
-      {/* ESQUERDA */}
-      <section id="col_esquerda" aria-label="Apresentação">
-        <div className="bloco-avatar">
-          <img src={LogoRegistro} alt="Logo do Registro" />        </div>
-        <div className="marca-wrap">
-          <h1 className="marca-titulo">Assist Conect</h1>
-          <p className="marca-sub">Cuidar com organização, viver com tranquilidade!</p>
+    <div id="reg__grid">
+      {/* ESQUERDA – HERO */}
+      <aside className="reg__hero">
+        <div className="hero__circle">
+          <img src={HeroImg} alt="Assist Conect" />
         </div>
-      </section>
+        <h1 className="hero__title">Assist Conect</h1>
+        <p className="hero__subtitle">Cuidar com organização, viver com tranquilidade!</p>
+      </aside>
 
-      {/* DIREITA */}
-      <section id="col_direita" aria-label="Formulário">
-        <div className="form-wrap">
-          <h2 className="form-titulo">Registro</h2>
+      {/* DIREITA – FORM */}
+      <main className="reg__panel">
+        <div className="panel__content">
+          <h2 className="panel__title">Registro</h2>
 
-          <form id="form_registro" onSubmit={handleSubmit}>
-            <div className="grupo_campo">
-              <label className="rotulo_campo" htmlFor="nome">Nome</label>
-              <input
-                className="campo_texto"
-                id="nome"
-                placeholder=" "
-                value={nome}
-                onChange={(e) => setNome(e.target.value)}
-                required
-              />
-            </div>
+          {erro && <div className="panel__error">{erro}</div>}
 
-            <div className="grupo_campo">
-              <label className="rotulo_campo" htmlFor="email">E-mail</label>
-              <input
-                className="campo_texto"
-                id="email"
-                type="email"
-                placeholder=" "
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
+          <form className="panel__form" onSubmit={handleSubmit} noValidate>
+            <label className="form__label" htmlFor="nome">Nome</label>
+            <input
+              id="nome"
+              className="form__input"
+              type="text"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              placeholder=""
+              autoComplete="name"
+              required
+            />
 
-            <div className="linha-dupla">
-              <div className="grupo_campo">
-                <label className="rotulo_campo" htmlFor="senha">Senha</label>
-                <input
-                  className="campo_texto"
-                  id="senha"
-                  type="password"
-                  placeholder=" "
-                  value={senha}
-                  onChange={(e) => setSenha(e.target.value)}
-                  required
-                  minLength={6}
-                />
-              </div>
-              <div className="grupo_campo">
-                <label className="rotulo_campo" htmlFor="confirmar">Confirmar senha</label>
-                <input
-                  className="campo_texto"
-                  id="confirmar"
-                  type="password"
-                  placeholder=" "
-                  value={confirmar}
-                  onChange={(e) => setConfirmar(e.target.value)}
-                  required
-                  minLength={6}
-                />
-              </div>
-            </div>
+            <label className="form__label" htmlFor="email">E-mail</label>
+            <input
+              id="email"
+              className="form__input"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder=""
+              autoComplete="email"
+              required
+            />
 
-            <div className="grupo_campo">
-              <label className="rotulo_campo" htmlFor="papel">Papel</label>
-              <select
-                className="seletor"
-                id="papel"
-                value={papel}
-                onChange={(e) => setPapel(e.target.value)}
-                required
-              >
-                <option value="" disabled>Selecione um papel...</option>
-                <option>Administrador</option>
-                <option>Cuidador</option>
-                <option>Familiar</option>
-              </select>
-            </div>
+            <label className="form__label" htmlFor="senha">Senha</label>
+            <input
+              id="senha"
+              className="form__input"
+              type="password"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              placeholder=""
+              autoComplete="new-password"
+              minLength={6}
+              required
+            />
 
-            <div className="acoes_formulario">
-              <button type="submit" className="botao_principal">Registrar</button>
-            </div>
+            <label className="form__label" htmlFor="confirmar">Confirmar senha</label>
+            <input
+              id="confirmar"
+              className="form__input"
+              type="password"
+              value={confirmar}
+              onChange={(e) => setConfirmar(e.target.value)}
+              placeholder=""
+              autoComplete="new-password"
+              minLength={6}
+              required
+            />
+
+            <label className="form__label" htmlFor="papel">Papel</label>
+            <select
+              id="papel"
+              className="form__select"
+              value={papel}
+              onChange={(e) => setPapel(e.target.value)}
+              required
+            >
+              <option value="">Selecione um papel...</option>
+              <option value="funcionario">Funcionário</option>
+              <option value="familiar">Familiar</option>
+              <option value="admin">Admin</option>
+            </select>
+
+            <button type="submit" className="form__button" disabled={loading}>
+              {loading ? "Registrando..." : "Registrar"}
+            </button>
+
+            <p className="panel__switch">
+              Já tem uma conta? <Link to="/">Entrar</Link>
+            </p>
           </form>
         </div>
-      </section>
-    </main>
+      </main>
+    </div>
   );
 }
-
-export default Register;
