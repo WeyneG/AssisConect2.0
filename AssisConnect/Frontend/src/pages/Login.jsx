@@ -38,8 +38,8 @@ export default function Login() {
 
    // 🎨 Paleta de cores
 const colors = {
-    primary: '#202C4B',   // marrom escuro
-    secondary: '#5C79C2', // marrom claro
+    primary: '#202C4B',   // azul escuro
+    secondary: '#5C79C2', // azul claro
     accent: '#D8E0F7',    // bege
     bgForm: '#eee8e8',    // fundo do formulário
     textDark: '#1d2440',  // quase preto
@@ -240,3 +240,4 @@ return (
 );
 }
 
+// PR do Frontend
