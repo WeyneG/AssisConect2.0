@@ -28,7 +28,11 @@ public class UserService {
         u.setName(r.name());
         u.setEmail(r.email());
         u.setPasswordHash(encoder.encode(r.password()));
-        u.setRole("funcionario");
+        String role = r.role() == null ? "" : r.role().trim().toLowerCase();
+        if (!role.equals("admin") && !role.equals("funcionario") && !role.equals("familiar")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role inválido. Use admin, funcionario ou familiar.");
+        }
+        u.setRole(role);
         return repo.save(u);
     }
 
