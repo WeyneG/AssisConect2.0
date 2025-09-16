@@ -86,31 +86,37 @@ export default function Register() {
               required
             />
 
-            <label className="form__label" htmlFor="senha">Senha</label>
-            <input
-              id="senha"
-              className="form__input"
-              type="password"
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
-              placeholder=""
-              autoComplete="new-password"
-              minLength={6}
-              required
-            />
+            <div className="form__row">
+            <div className="form__group">
+              <label className="form__label" htmlFor="senha">Senha</label>
+              <input
+                id="senha"
+                className="form__input"
+                type="password"
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+                placeholder=""
+                autoComplete="new-password"
+                minLength={6}
+                required
+              />
+            </div>
 
-            <label className="form__label" htmlFor="confirmar">Confirmar senha</label>
-            <input
-              id="confirmar"
-              className="form__input"
-              type="password"
-              value={confirmar}
-              onChange={(e) => setConfirmar(e.target.value)}
-              placeholder=""
-              autoComplete="new-password"
-              minLength={6}
-              required
-            />
+            <div className="form__group">
+              <label className="form__label" htmlFor="confirmar">Confirmar senha</label>
+              <input
+                id="confirmar"
+                className="form__input"
+                type="password"
+                value={confirmar}
+                onChange={(e) => setConfirmar(e.target.value)}
+                placeholder=""
+                autoComplete="new-password"
+                minLength={6}
+                required
+              />
+            </div>
+          </div>
 
             <label className="form__label" htmlFor="papel">Papel</label>
             <select
