@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "../registro.css";
-import HeroImg from "../assets/Logo-registro.png"; // ajuste se seu arquivo tiver outro nome
+import HeroImg from "../assets/logoAssist.png"; 
 
 export default function Register() {
   const [nome, setNome] = useState("");
