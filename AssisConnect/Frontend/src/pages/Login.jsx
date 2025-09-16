@@ -34,9 +34,6 @@ export default function Login() {
   }
 };
 
-
-
-   // 🎨 Paleta de cores
 const colors = {
     primary: '#202C4B',   // azul escuro
     secondary: '#5C79C2', // azul claro
@@ -51,9 +48,9 @@ const containerStyle = {
     display: 'flex',
     flexDirection: isMobile ? 'column' : 'row',
     minHeight: '100vh',
-    width: '100vw',       // garante largura total
+    width: '100vw',
     margin: 0,
-    overflow: 'hidden',   // evita barra causada por sombras/efeitos
+    overflow: 'hidden',
 };
 
 const headerStyle = {
@@ -63,8 +60,8 @@ const headerStyle = {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
-    alignItems: 'center',   // ⬅ centraliza horizontalmente
-    textAlign: 'center',    // ⬅ centraliza o texto
+    alignItems: 'center',
+    textAlign: 'center',
     padding: isMobile ? '24px' : '48px',
     borderRadius: 0,
     boxShadow: '0 8px 22px rgba(0,0,0,.12)',
@@ -76,7 +73,7 @@ const formStyle = {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: isMobile ? '16px' : '24px 48px',  // respiro lateral extra
+    padding: isMobile ? '16px' : '24px 48px',
     borderRadius: 0,
     boxShadow: '0 8px 22px rgba(0,0,0,.10)',
 };
@@ -239,5 +236,3 @@ return (
     </div>
 );
 }
-
-// PR do Frontend
