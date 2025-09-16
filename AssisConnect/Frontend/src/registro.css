@@ -171,6 +171,23 @@ body {
   min-height: 100vh;
 }
 
+.form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem; /* espaço entre os dois campos */
+}
+
+.form__group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Responsividade: em telas menores, volta para 1 coluna */
+@media (max-width: 768px) {
+  .form__row {
+    grid-template-columns: 1fr;
+  }
+}
 
 /* RESPONSIVO */
 @media (max-width: 880px){
