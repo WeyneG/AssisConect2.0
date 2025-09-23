@@ -1,12 +1,17 @@
 package com.assisconnect.backend.service;
 
+import java.util.Optional;
+
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.assisconnect.backend.api.RegisterRequest;
+import com.assisconnect.backend.api.UpdateUserRequest;
 import com.assisconnect.backend.domain.User;
 import com.assisconnect.backend.domain.UserRepository;
 
@@ -43,5 +48,42 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciais inválidas");
         }
         return u;
+        
+    }
+    @Transactional
+    public User updateUser(Long id, UpdateUserRequest req) {
+        User u = repo.findById(id).orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+
+        if (req.getName() != null && !req.getName().isBlank()) {
+            u.setName(req.getName().trim());
+        }
+
+        if (req.getEmail() != null && !req.getEmail().isBlank()) {
+            String newEmail = req.getEmail().trim().toLowerCase();
+            Optional<User> existing = repo.findByEmail(newEmail);
+            if (existing.isPresent() && !existing.get().getId().equals(id)) {
+                throw new DataIntegrityViolationException("E-mail já está em uso");
+            }
+            u.setEmail(newEmail);
+        }
+
+        if (req.getRole() != null && !req.getRole().isBlank()) {
+          
+            String normalized = req.getRole().trim().toLowerCase();
+            if (!normalized.equals("admin") && !normalized.equals("funcionario") && !normalized.equals("familiar")) {
+                throw new IllegalArgumentException("Role inválida");
+            }
+            u.setRole(normalized);
+        }
+
+        return repo.save(u);
+    }
+
+    @Transactional
+    public void deleteUser(Long id) {
+        if (!repo.existsById(id)) {
+            throw new IllegalArgumentException("Usuário não encontrado");
+        }
+        repo.deleteById(id);
     }
 }
