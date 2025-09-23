@@ -4,6 +4,7 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
+import Users from "./pages/Users";
 
 export default function App() {
   return (
@@ -23,9 +24,15 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-
-          {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
+          <Route
+  path="/users"
+  element={
+    <ProtectedRoute>
+      <Users />
+    </ProtectedRoute>
+  }
+/>
         </Routes>
       </AuthProvider>
     </BrowserRouter>
