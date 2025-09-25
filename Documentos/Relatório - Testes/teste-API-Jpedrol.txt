@@ -1,0 +1,115 @@
+#TESTE-ROTAS-API#
+
+Data: 24/09/2025  
+Responsável: João Pedro Lopes  
+Ambiente: Localhost:8080
+
+teste01 - resgistro de usuário tipo ADM:
+
+input:
+
+        "name": "Ana Souza",
+        "email": "ana@exemplo.com",
+        "password": "segredo123",
+        "role": "ADMIN"
+
+resultado: 
+
+http://localhost:5173/home
+
+"ÁREA PROTEGIDA"
+
+OK AUTENTICADO
+
+BUTTON: Gerenciar usuários.
+
+OBS: BANCO DE DADOS SALVO COM SUCESSO! ID OK, NAME OK, SENHA CRIPOGRAFADA OK, ROLE OK, DATA CRIAÇÃO OK. 
+
+
+teste02 - loguin do usuário registrado:
+
+input:
+
+        "email": "ana@exemplo.com",
+        "password": "segredo123",
+
+resultado:
+
+http://localhost:5173/home
+
+"ÁREA PROTEGIDA"
+
+OK AUTENTICADO
+
+BUTTON: Gerenciar usuários.
+
+
+teste03 - testar Gerenciar usuarios:
+
+input:
+
+        clicar no butão "Gerenciar Usuáios"
+
+resultado:
+
+        http://localhost:5173/users
+
+        Redirecionado para a página onde é possível visualizar usuários, onde eu posso buscar por nome, email, roles, ultima opção não entendida.
+
+        Busca por nome ok, busca por email ok, busca por role ok, ao clicar na última opção aparece todos os user independente de qual opção selecionada! Editar ainda não testado(prox teste(04)), anterior e proxima página ok.
+        Opção de excluir ok.
+
+
+teste04 - atualizar usuário:
+
+input:
+
+        "name": "Ana Souza Silva",
+        "email": "ana@exemplo.com.br",
+        "password": "segredo123",
+        "role": "FUNCIONARIO"
+
+RESULTADO:
+
+        em tela aparece:"Não autorizado ou falha ao carregar", porém, no banco foi alterado o nome, o email, e a role.
+        Após mensagem de erro, a tela ficou parada no erro sem nenhuma possibilidade, e se eu voltasse para a página anterior aparece em tela: "Falha ao acessar recurso protegido".(mas esse erro pode acontecer porque no banco de dados o user já esta como 
+        FUNCIONARIO, e não como ADM), quando tentado dar loguin com o user que foi editado eu consegui com sucesso.
+
+        lembrando que eu estava logado com o user que eu excluir, então pode esteja correto! Mas acredito que tenha que mudar, quando for excluido tem que ficar indisponivel e voltar para loguin, ou algo assim.
+
+
+teste05 - excluir usuário:
+
+input:
+
+        clicar no botão de excluir, em Gerenciar usuarios.
+
+resultado: 
+
+        em tela aparece: "tem certeza que deseja excluir o usuário Ana Souza Silva ? ---> botão ok ---> usuario excluido. Exluido do banco de dados.
+
+
+teste06 - exemplo de rota protegida:
+
+input:
+
+        colei URL no navegador.
+
+resultado:
+
+        Página de erro de marca branca
+        Este aplicativo não tem um mapeamento explícito para /error, então você está vendo isso como um fallback.
+
+        Qua 24 Set 2025 23:53:02 BRT
+        Ocorreu um erro inesperado (tipo=Proibido, status=403).
+
+
+teste06 - teste token
+
+input: 
+
+        sem o token
+
+resultado:
+
+        sem acesso.
