@@ -1,157 +1,180 @@
-:root {
-  --indigo-900: #1f2740;
-  --indigo-800: #222c49;
-  --panel: #8f95a3;
-  --chip: #d9dce2;
-  --sidebar: #9cace3;
-  --bg: #ffffff;
-  --text: #0b0f1a;
-  --muted: #5b6170;
+/* Fonte */
+@import url('https://fonts.cdnfonts.com/css/satoshi');
+
+/* Paleta */
+:root{
+  --indigo-900:#1f2740;  /* azul escuro (cards topo e contador) */
+  --indigo-800:#222c49;
+  --panel:#8f95a3;       /* cinza blocos (cardápio/avisos/aniversariantes) */
+  --chip:#d9dce2;        /* cartões internos */
+  --bg:#ffffff;          /* fundo da página */
+  --sidebar:#9cace3;     /* lilás da sidebar */
+  --text:#0b0f1a;
+  --muted:#5b6170;
+
+  --radius-xl:24px;
+  --radius-lg:20px;
+  --radius-md:14px;
+  --shadow-lg:0 10px 22px rgba(0,0,0,.08);
+  --shadow-md:0 6px 14px rgba(0,0,0,.06);
+
+  --grid-gap:42px;
 }
 
-.dashboard-root {
-  min-height: 100vh;
-  width: 100%;
-  background: var(--bg);
-  color: var(--text);
+*{box-sizing:border-box}
+html,body,#root{height:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Satoshi',system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,'Helvetica Neue',Arial,'Noto Sans',sans-serif
 }
 
-.dashboard-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 30px;
+/* LAYOUT BASE */
+.home-root{
+  display:flex;
+  min-height:100vh;
 }
 
-.dashboard-title {
-  font-size: 32px;
-  font-weight: bold;
-  color: var(--indigo-900);
+/* SIDEBAR */
+.sidebar{
+  width:76px;
+  background:var(--sidebar);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:20px 0;
+}
+.sb-slot{height:8px}
+.sb-gap{margin-bottom:16px}
+.sb-btn{
+  width:48px;height:48px;
+  border-radius:12px;border:none;background:transparent;
+  margin:10px 0;cursor:pointer;
+}
+.sb-btn:hover{background:rgba(255,255,255,.22)}
+.sb-avatar{
+  width:48px;height:48px;border-radius:999px;border:3px solid #2a365c;
+  background:#ffffff20;margin-bottom:14px;cursor:pointer;
+}
+.sb-exit{margin-top:8px}
+.sb-spacer{flex:1}
+.sb-icon{width:26px;height:auto;display:block;margin:0 auto}
+.sb-avatar .avatar{width:100%;height:auto;border-radius:50%}
+
+/* PAGE WRAPPER (conteúdo à direita da sidebar) */
+.page{
+  flex:1;
+  padding:36px 40px 24px 40px;
 }
 
-.dashboard-subtitle {
-  font-size: 16px;
-  color: var(--muted);
+/* GRID PRINCIPAL (replica o Figma) */
+.content-grid{
+  display:grid;
+  grid-template-columns: 1fr 380px;  /* coluna grande + coluna menor */
+  grid-auto-rows: min-content;
+  gap: var(--grid-gap);
 }
 
-.dashboard-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+/* CARDS GENÉRICOS */
+.card{
+  background: #7a7f8c;
+  border-radius: 18px;
+  padding: 24px;
+  color:#fff;
+  box-shadow: var(--shadow-md);
 }
 
-.btn-primary-custom {
+/* HERO (PAINEL INICIAL) */
+.card-hero{
+  grid-column: 1 / 2;
   background: var(--indigo-900);
-  border: none;
-  color: #fff;
-  font-weight: bold;
+  display:flex;align-items:center;
+  padding: 26px 32px;
 }
-
-.btn-primary-custom:hover {
-  background: var(--indigo-800);
+.hero-icon{
+  width:56px;height:56px;border-radius:16px;background:#ffffff18;
+  display:flex;align-items:center;justify-content:center;margin-right:18px;
 }
+.hero-icon-img{width:32px;height:auto}
+.hero-texts{display:flex;flex-direction:column}
+.hero-title{margin:0;font-weight:900;font-size:26px;letter-spacing:.02em}
+.hero-subtitle{margin:8px 0 0;font-size:18px;opacity:.96}
 
-.btn-outline-custom {
-  border: 2px solid var(--indigo-900);
-  color: var(--indigo-900);
-  font-weight: bold;
-  background: transparent;
-}
-
-.btn-outline-custom:hover {
+/* CONTADOR */
+.card-counter{
+  grid-column: 2 / 3;
   background: var(--indigo-900);
-  color: #fff;
+  text-align:center;display:flex;flex-direction:column;justify-content:center;
 }
+.counter-number{font-size:78px;line-height:1;font-weight:900}
+.counter-label{font-size:18px;font-weight:800;letter-spacing:.04em}
 
-/* Cards resumo */
-.summary-card {
-  background: var(--indigo-900);
-  color: #fff;
-  border: none;
-  border-radius: 16px;
-  text-align: center;
-}
-
-.summary-card-body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.summary-label {
-  font-size: 14px;
-  color: var(--chip);
-}
-
-.summary-value {
-  font-size: 24px;
-  font-weight: bold;
-}
-
-/* Gráficos */
-.chart-card {
+/* CARDÁPIO (coluna 1) */
+.card-menu{
+  grid-column: 1 / 2;
   background: var(--panel);
-  color: #fff;
-  border-radius: 16px;
-  border: none;
 }
-
-.chart-title {
-  font-weight: bold;
-  margin-bottom: 10px;
+.block-header{margin-bottom:12px}
+.block-title{
+  margin:0;color:#fff;font-weight:900;letter-spacing:.02em;font-size:56px;line-height:.95
 }
-
-.chart-wrapper {
-  width: 100%;
-  height: 200px;
+.block-subtitle{
+  color:#e7e9ef;font-size:34px;font-weight:700;margin-top:6px
 }
-
-/* Próximas tarefas */
-.task-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.menu-list{margin-top:12px;display:flex;flex-direction:column;gap:14px;max-width:640px}
+.menu-item{
+  background: var(--chip);color:#111;border-radius:16px;
+  padding:14px 16px;box-shadow:var(--shadow-md)
 }
+.menu-title{font-weight:900;margin-bottom:6px;letter-spacing:.02em}
+.menu-desc{opacity:.9}
 
-.task-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
+/* AVISOS (coluna 2) */
+.card-notices{
+  grid-column: 2 / 3;
+  background: var(--panel);
 }
-
-.task-badge {
-  min-width: 60px;
-  color: #fff;
-  border: none;
+.notice-list{display:flex;flex-direction:column;gap:14px;margin-top:12px}
+.notice-item{
+  background: var(--chip);color:#111;border-radius:16px;
+  padding:14px 16px;box-shadow:var(--shadow-md)
 }
+.notice-title{font-weight:900;margin-bottom:6px}
 
-.task-title {
-  font-weight: bold;
-  color: #fff;
-  flex: 1;
+/* ANIVERSARIANTES (full na coluna 1) */
+.card-birthday{
+  grid-column: 1 / 2;
+  background: var(--panel);
 }
-
-.task-date {
-  color: var(--chip);
-  font-size: 14px;
+.birthday-content{
+  margin-top:16px;display:flex;align-items:center;justify-content:space-between
 }
+.birthday-name{font-size:24px;font-weight:900;color:#111827}
+.age{font-size:36px;font-weight:900}
+.balloon{width:92px;height:92px;border-radius:22px;background:#ffffff22;
+  display:flex;align-items:center;justify-content:center}
+.balloon-icon{width:30px;height:auto;display:block}
 
-.no-tasks {
-  color: var(--chip);
-  font-size: 14px;
-}
-
-/* Tooltip custom */
-.custom-tooltip {
+/* CANVAS (barra com botão à direita, fora do grid principal) */
+.canvas{margin-top:22px}
+.auth-message{display:flex;align-items:center;justify-content:flex-end}
+.btn-manage-users{
   background: var(--indigo-900);
-  border: 1px solid var(--indigo-800);
-  color: #fff;
-  border-radius: 10px;
-  padding: 8px 12px;
-  font-weight: 500;
+  color:#fff;border:none;border-radius:10px;
+  padding:10px 18px;font-weight:800;cursor:pointer
 }
+.btn-manage-users:hover{background: var(--indigo-800)}
 
-.custom-tooltip .value {
-  float: right;
-  font-weight: 700;
+/* RESPONSIVO */
+@media (max-width: 1180px){
+  .content-grid{
+    grid-template-columns: 1fr; /* uma coluna */
+  }
+  .card-counter{grid-column:auto}
+  .card-notices{grid-column:auto}
+  .card-birthday{grid-column:auto}
+  .block-title{font-size:44px}
+  .block-subtitle{font-size:28px}
+  .counter-number{font-size:64px}
 }
