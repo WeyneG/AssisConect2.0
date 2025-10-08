@@ -29,5 +29,15 @@ api.interceptors.response.use(
     return Promise.reject(err);
   }
 );
+export const dashboardService = {
+    
+    getIdososCount: () => {
+        return api.get('/idosos/count'); 
+    },
+    getAniversariantes: () => {
+        return api.get('/idosos/aniversariantes');
+    }
+   
+};
 
-export default api;
+export default api; 

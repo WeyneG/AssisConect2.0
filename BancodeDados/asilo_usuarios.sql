@@ -22,17 +22,14 @@
 DROP TABLE IF EXISTS `usuarios`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `usuarios` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `nome` varchar(100) NOT NULL,
-  `email` varchar(150) NOT NULL,
-  `senha` varchar(255) NOT NULL,
-  `role` enum('admin','funcionario','familiar') NOT NULL,
-  `data_criacao` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `ultimo_login` datetime DEFAULT NULL,
-  `status` enum('ativo','inativo') DEFAULT 'ativo',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `email` (`email`)
+CREATE TABLE usuarios (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  nome VARCHAR(100) NOT NULL,
+  email VARCHAR(150) NOT NULL UNIQUE,
+  senha VARCHAR(255) NOT NULL,
+  role ENUM('admin','funcionario','familiar') NOT NULL,
+  data_criacao TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

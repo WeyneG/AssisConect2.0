@@ -22,20 +22,22 @@
 DROP TABLE IF EXISTS `idosos`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `idosos` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `nome` varchar(120) NOT NULL,
-  `data_nascimento` date NOT NULL,
-  `sexo` enum('M','F','NA') NOT NULL,
-  `estado_saude` enum('estavel','observacao','grave') NOT NULL DEFAULT 'estavel',
-  `observacoes` text,
-  `responsavel_id` int NOT NULL,
-  `criado_em` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `atualizado_em` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `idx_idosos_responsavel` (`responsavel_id`),
-  KEY `idx_idosos_nome` (`nome`),
-  CONSTRAINT `fk_idosos_responsavel` FOREIGN KEY (`responsavel_id`) REFERENCES `usuarios` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+CREATE TABLE idosos (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  nome VARCHAR(120) NOT NULL,
+  data_nascimento DATE NOT NULL,
+  sexo ENUM('M','F','NA') NOT NULL,
+  estado_saude ENUM('estavel','observacao','grave') NOT NULL DEFAULT 'estavel',
+  observacoes TEXT,
+  responsavel_id BIGINT UNSIGNED NOT NULL,
+  criado_em TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  atualizado_em TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_idosos_responsavel (responsavel_id),
+  KEY idx_idosos_nome (nome),
+  CONSTRAINT fk_idosos_responsavel FOREIGN KEY (responsavel_id)
+    REFERENCES usuarios (id)
+    ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

@@ -26,24 +26,28 @@ public class SecurityConfig {
         this.jwtFilter = jwtFilter;
     }
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable())
-                .cors(Customizer.withDefaults())
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/error", "/favicon.ico", "/assets/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/usuarios").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/usuarios/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/usuarios/**").hasRole("ADMIN")
-                        .anyRequest().authenticated())
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+   @Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+            .csrf(csrf -> csrf.disable())
+            .cors(Customizer.withDefaults())
+            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                    .requestMatchers("/auth/**").permitAll()
+                    .requestMatchers("/error", "/favicon.ico", "/assets/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/idosos/count").hasAnyRole("ADMIN", "FUNCIONARIO", "FAMILIAR")
+                    .requestMatchers(HttpMethod.GET, "/idosos/aniversariantes").hasAnyRole("ADMIN", "FUNCIONARIO", "FAMILIAR")
+                    .requestMatchers(HttpMethod.GET, "/usuarios").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/usuarios/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/usuarios/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/idosos").hasAnyRole("ADMIN", "FUNCIONARIO") // *NOTA: Recomendo adicionar FAMILIAR se a tela POST foi autorizada para ele antes.
+                    .anyRequest().authenticated())
 
-        return http.build();
-    }
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
+    return http.build();
+}
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource(
