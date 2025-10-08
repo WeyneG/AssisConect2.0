@@ -2,9 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 
-import "../home.css"; // mantém o mesmo caminho/pasta
+import "../home.css";
 
-// imports dos ícones (assets em src/assets)
 import IconPerfil from "../assets/btn-perfil.png";
 import IconHome from "../assets/btn-home.png";
 import IconUsers from "../assets/btn-users.png";
@@ -30,10 +29,8 @@ function getRoleFromToken() {
 }
 
 export default function Home() {
-  // corrige a desestruturação: ignoramos o valor, usamos só o setMsg
   const [, setMsg] = useState("Carregando...");
   const navigate = useNavigate();
-
   const role = useMemo(() => getRoleFromToken(), []);
 
   useEffect(() => {
@@ -46,85 +43,78 @@ export default function Home() {
             : res.data?.mensagem || JSON.stringify(res.data)
         )
       )
-      .catch((err) => {
-        console.error(err);
-        setMsg("Falha ao acessar recurso protegido");
-      });
+      .catch(() => setMsg("Falha ao acessar recurso protegido"));
   }, []);
+
+  const go = (path) => () => navigate(path);
 
   return (
     <div className="home-root">
-      {/* BARRA LATERAL */}
+      {/* SIDEBAR */}
       <aside className="sidebar">
         <div className="sb-slot sb-gap" />
-        <button className="sb-btn" aria-label="Início">
+        <button className="sb-btn" aria-label="Início" data-tip="Início" onClick={go("/home")}>
           <img src={IconHome} alt="Início" className="sb-icon" />
         </button>
-        <button className="sb-btn" aria-label="Moradores">
+        <button className="sb-btn" aria-label="Moradores" data-tip="Moradores" onClick={go("/moradores")}>
           <img src={IconUsers} alt="Moradores" className="sb-icon" />
         </button>
-        <button className="sb-btn" aria-label="Cardápio">
+        <button className="sb-btn" aria-label="Cardápio" data-tip="Cardápio" onClick={go("/cardapio")}>
           <img src={IconCardapio} alt="Cardápio" className="sb-icon" />
         </button>
-        <button className="sb-btn" aria-label="Relatórios">
+        <button className="sb-btn" aria-label="Relatórios" data-tip="Relatórios" onClick={go("/relatorios")}>
           <img src={IconRelatorio} alt="Relatórios" className="sb-icon" />
         </button>
         <div className="sb-spacer" />
-        <button className="sb-avatar" aria-label="Perfil">
+        <button className="sb-avatar" aria-label="Perfil" data-tip="Perfil" onClick={go("/perfil")}>
           <img src={IconPerfil} alt="Perfil" className="sb-icon avatar" />
         </button>
-        <button className="sb-btn sb-exit" aria-label="Sair">
+        <button className="sb-btn sb-exit" aria-label="Sair" data-tip="Sair" onClick={() => { localStorage.removeItem("token"); navigate("/"); }}>
           <img src={IconSair} alt="Sair" className="sb-icon" />
         </button>
       </aside>
 
-      {/* ÁREA DE CONTEÚDO */}
+      {/* CONTEÚDO */}
       <div className="page">
-        {/* GRID DE CONTEÚDO PRINCIPAL */}
         <div className="content-grid">
-          {/* Painel Inicial */}
+          {/* Hero */}
           <section className="card card-hero">
             <div className="hero-icon">
               <img src={IconHome} alt="Painel" className="hero-icon-img" />
             </div>
             <div className="hero-texts">
-              <h1 className="hero-title">PAINEL INICIAL</h1>
-              <p className="hero-subtitle">
-                Ferramenta de Gestão e Apoio ao lar de idosos
-              </p>
+              <div className="hero-top">
+                <h1 className="hero-title">Painel inicial</h1>
+                {role && <span className={`role-badge role-${role.toLowerCase()}`}>{role}</span>}
+              </div>
+              <p className="hero-subtitle">Ferramenta de gestão e apoio ao Lar de Idosos</p>
             </div>
           </section>
 
-          {/* Contador */}
+          {/* KPI */}
           <section className="card card-counter">
             <div className="counter-number">35</div>
-            <div className="counter-label">IDOSOS CADASTRADOS</div>
+            <div className="counter-label">Idosos cadastrados</div>
           </section>
 
           {/* Cardápio */}
           <section className="card card-block card-menu">
             <header className="block-header">
-              <h2 className="block-title">CARDÁPIO</h2>
-              <div className="block-subtitle">DO DIA</div>
+              <h2 className="block-title">Cardápio</h2>
+              <div className="block-subtitle">do dia</div>
             </header>
             <ul className="menu-list">
               <li className="menu-item">
-                <div className="menu-title">CAFÉ DA MANHÃ</div>
-                <div className="menu-desc">
-                  Pão integral com ovos e queijo branco.
-                </div>
+                <div className="menu-title">Café da manhã</div>
+                <div className="menu-desc">Pão integral com ovos e queijo branco.</div>
               </li>
               <li className="menu-item">
-                <div className="menu-title">ALMOÇO</div>
-                <div className="menu-desc">
-                  Arroz, feijão, frango grelhado e salada.
-                </div>
+                <div className="menu-title">Almoço</div>
+                <div className="menu-desc">Arroz, feijão, frango grelhado e salada.</div>
               </li>
               <li className="menu-item">
-                <div className="menu-title">JANTAR</div>
-                <div className="menu-desc">
-                  Sopa de legumes com torradas de pão.
-                </div>
+                <div className="menu-title">Jantar</div>
+                <div className="menu-desc">Sopa de legumes com torradas de pão.</div>
               </li>
             </ul>
           </section>
@@ -132,29 +122,25 @@ export default function Home() {
           {/* Avisos */}
           <section className="card card-block card-notices">
             <header className="block-header">
-              <h2 className="block-title">AVISOS</h2>
-              <div className="block-subtitle">DO DIA</div>
+              <h2 className="block-title">Avisos</h2>
+              <div className="block-subtitle">do dia</div>
             </header>
             <ul className="notice-list">
               <li className="notice-item">
-                <div className="notice-title">CARLOS NUNES</div>
-                <div className="notice-desc">Fisioterapia às 16 horas.</div>
+                <div className="notice-title">Carlos Nunes</div>
+                <div className="notice-desc">Fisioterapia às 16h.</div>
               </li>
               <li className="notice-item">
-                <div className="notice-title">JOANA CARDOSO</div>
-                <div className="notice-desc">Tomar remédio 17 horas.</div>
+                <div className="notice-title">Joana Cardoso</div>
+                <div className="notice-desc">Tomar remédio às 17h.</div>
               </li>
               <li className="notice-item">
-                <div className="notice-title">MARIA DA LUZ</div>
-                <div className="notice-desc">
-                  Novo remédio passado pela equipe médica.
-                </div>
+                <div className="notice-title">Maria da Luz</div>
+                <div className="notice-desc">Novo remédio prescrito pela equipe médica.</div>
               </li>
               <li className="notice-item">
-                <div className="notice-title">JORGE HENRIQUE</div>
-                <div className="notice-desc">
-                  Apresentou melhora em relação a labirintite.
-                </div>
+                <div className="notice-title">Jorge Henrique</div>
+                <div className="notice-desc">Melhora percebida da labirintite.</div>
               </li>
             </ul>
           </section>
@@ -162,35 +148,27 @@ export default function Home() {
           {/* Aniversariantes */}
           <section className="card card-birthday">
             <header className="block-header">
-              <h2 className="block-title">ANIVERSARIANTES</h2>
-              <div className="block-subtitle">DO DIA</div>
+              <h2 className="block-title">Aniversariantes</h2>
+              <div className="block-subtitle">de hoje</div>
             </header>
             <div className="birthday-content">
               <div className="birthday-name">
-                CARLOS ALBERTO DA SILVA JUNIOR - <span className="age">63</span>
+                Carlos Alberto da Silva Junior — <span className="age">63</span>
               </div>
               <div className="balloon">
-                <img
-                  src={IconBalloon}
-                  alt="Balão"
-                  className="sb-icon balloon-icon"
-                />
+                <img src={IconBalloon} alt="Balão" className="sb-icon balloon-icon" />
               </div>
             </div>
           </section>
         </div>
 
-        {/* CANVAS PRINCIPAL (apenas para o botão do ADMIN) */}
         <main className="canvas">
           <div className="auth-message">
             <div className="auth-left" />
             <div className="auth-right">
               {role === "ADMIN" && (
-                <button
-                  onClick={() => navigate("/users")}
-                  className="btn-manage-users"
-                >
-                  Gerenciar Usuários
+                <button onClick={() => navigate("/users")} className="btn-manage-users">
+                  Gerenciar usuários
                 </button>
               )}
             </div>
