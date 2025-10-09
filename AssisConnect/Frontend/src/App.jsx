@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
 import Users from "./pages/Users";
+import RegisterIdoso from "./pages/register-idoso";
 
 export default function App() {
   return (
@@ -24,15 +25,25 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="/register-idoso"
+            element={
+              <ProtectedRoute>
+                <RegisterIdoso />
+              </ProtectedRoute>
+            }
+          />
+
           <Route path="*" element={<Navigate to="/" replace />} />
           <Route
-  path="/users"
-  element={
-    <ProtectedRoute>
-      <Users />
-    </ProtectedRoute>
-  }
-/>
+            path="/users"
+            element={
+              <ProtectedRoute>
+                <Users />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </AuthProvider>
     </BrowserRouter>
