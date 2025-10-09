@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 // Importe a instância api e o novo serviço
-import { dashboardService } from "../services/api"; 
+import { dashboardService } from "../services/api";
 
 import "../home.css";
 
@@ -60,7 +60,7 @@ export default function Home() {
                     dashboardService.getIdososCount(),
                     dashboardService.getAniversariantes()
                 ]);
-                
+
                 setIdososCount(countResponse.data);
                 setAniversariantes(aniversariantesResponse.data);
 
@@ -81,7 +81,7 @@ export default function Home() {
     }, []);
 
     const go = (path) => () => navigate(path);
-    
+
     // Pegamos o primeiro aniversariante para o card de destaque
     const destaqueAniversariante = aniversariantes.length > 0 ? aniversariantes[0] : null;
 
@@ -192,7 +192,7 @@ export default function Home() {
                             ) : destaqueAniversariante ? (
                                 <>
                                     <div className="birthday-name">
-                                        {destaqueAniversariante.nome} — 
+                                        {destaqueAniversariante.nome} —
                                         <span className="age">{calculateAge(destaqueAniversariante.dataNascimento)}</span>
                                     </div>
                                     <div className="balloon">
@@ -216,9 +216,20 @@ export default function Home() {
                         <div className="auth-left" />
                         <div className="auth-right">
                             {role === "ADMIN" && (
-                                <button onClick={() => navigate("/users")} className="btn-manage-users">
-                                    Gerenciar usuários
-                                </button>
+                                <div className="admin-actions">
+                                    <button
+                                        onClick={() => navigate("/register-idoso")}
+                                        className="btn-register-idoso"
+                                    >
+                                        Registrar Idoso
+                                    </button>
+                                    <button
+                                        onClick={() => navigate("/users")}
+                                        className="btn-manage-users"
+                                    >
+                                        Gerenciar Usuários
+                                    </button>
+                                </div>
                             )}
                         </div>
                     </div>
