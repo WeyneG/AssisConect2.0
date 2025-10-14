@@ -1,149 +1,505 @@
-// src/pages/RegisterIdoso.jsx
-import React, { useState, useEffect } from "react";
+// src/pages/register-idoso.jsx
+import React, { useState, useEffect, useMemo } from "react";
 import api from "../services/api";
+import "../register-idoso.css";
 
 export default function RegisterIdoso() {
-    const [nome, setNome] = useState("");
-    const [dataNascimento, setDataNascimento] = useState("");
-    const [sexo, setSexo] = useState("");
-    const [estadoSaude, setEstadoSaude] = useState("");
-    const [observacoes, setObservacoes] = useState("");
-    const [responsavel, setResponsavel] = useState("");
-    const [usuarios, setUsuarios] = useState([]);
-    const [loadingUsuarios, setLoadingUsuarios] = useState(true);
-    const [erroUsuarios, setErroUsuarios] = useState(null);
-    const [erro, setErro] = useState("");
-    const [sucesso, setSucesso] = useState("");
+  const [nome, setNome] = useState("");
+  const [dataNascimento, setDataNascimento] = useState("");
+  const [sexo, setSexo] = useState("");
+  const [estadoSaude, setEstadoSaude] = useState("");
+  const [observacoes, setObservacoes] = useState("");
+  const [responsavel, setResponsavel] = useState("");
 
-    useEffect(() => {
-        let mounted = true;
-        setLoadingUsuarios(true);
+  const [usuarios, setUsuarios] = useState([]);
+  const [loadingUsuarios, setLoadingUsuarios] = useState(true);
+  const [erroUsuarios, setErroUsuarios] = useState(null);
 
-        const token = localStorage.getItem("token");
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
 
-        api.get("/usuarios", {
-            headers: { Authorization: `Bearer ${token}` }
-        })
-            .then((res) => {
-                const payload = res.data;
-                const arr = Array.isArray(payload?.content) ? payload.content : [];
-                if (mounted) setUsuarios(arr);
-            })
-            .catch((err) => {
-                console.error("Erro ao buscar usuários:", err, err?.response?.data);
-                setErroUsuarios(err);
-                setUsuarios([]);
-            })
-            .finally(() => {
-                if (mounted) setLoadingUsuarios(false);
-            });
+  const [idosos, setIdosos] = useState([]);
+  const [loadingIdosos, setLoadingIdosos] = useState(true);
+  const [erroIdosos, setErroIdosos] = useState(null);
 
-        return () => (mounted = false);
-    }, []);
+  const [editing, setEditing] = useState(null);
+  const [editForm, setEditForm] = useState({
+    nome: "",
+    dataNascimento: "",
+    sexo: "",
+    estadoSaude: "",
+    observacoes: "",
+    responsavelId: "",
+  });
 
+  const token = localStorage.getItem("token");
+  const auth = token ? { Authorization: `Bearer ${token}` } : {};
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setErro("");
-        setSucesso("");
+  useEffect(() => {
+    loadUsuarios();
+    loadIdosos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-        if (!nome || !dataNascimento || !sexo || !estadoSaude || !responsavel) {
-            setErro("Preencha todos os campos obrigatórios.");
-            return;
-        }
+  const normalizeUsuarios = (data) => {
+    const raw =
+      (data && Array.isArray(data.content) && data.content) ||
+      (data && Array.isArray(data.data) && data.data) ||
+      (Array.isArray(data) && data) ||
+      [];
 
-        try {
-            const payload = {
-                nome,
-                dataNascimento: new Date(dataNascimento).toISOString().split("T")[0], // força YYYY-MM-DD
-                sexo, // precisa ser "M" ou "F"
-                estadoSaude, // precisa ser "SAUDAVEL", "DOENTE" ou "INTERNADO"
-                observacoes,
-                responsavelId: Number(responsavel), // garante número
-            };
+    const arr = raw
+      .map((u) => ({
+        id: u.id ?? u.userId ?? u.codigo ?? u.idUsuario ?? u.uuid,
+        nome: u.nome ?? u.name ?? u.fullName ?? u.username ?? "Sem nome",
+      }))
+      .filter((u) => u.id != null);
 
-            const token = localStorage.getItem("token"); // pega o token
-            const res = await api.post("/idosos", payload, {
-                headers: { Authorization: `Bearer ${token}` } // envia o token no header
-            });
-            console.log("POST /idosos ->", res);
-            setSucesso("Idoso registrado com sucesso!");
-            setNome("");
-            setDataNascimento("");
-            setSexo("");
-            setEstadoSaude("");
-            setObservacoes("");
-            setResponsavel("");
-        } catch (err) {
-            console.error("Erro ao registrar idoso:", err, err?.response?.data);
-            const msg = err?.response?.data?.message || err?.response?.data?.error || "Falha ao registrar idoso. Tente novamente.";
-            setErro(msg);
-        }
-    };
-
-    return (
-        <div style={{ maxWidth: 700, margin: "2rem auto", padding: "1rem" }}>
-            <h1>Registrar Idoso</h1>
-
-            {erro && <div style={{ color: "red", marginBottom: "1rem" }}>{erro}</div>}
-            {sucesso && <div style={{ color: "green", marginBottom: "1rem" }}>{sucesso}</div>}
-
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label>Nome completo *</label>
-                    <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} />
-                </div>
-
-                <div>
-                    <label>Data de nascimento *</label>
-                    <input type="date" value={dataNascimento} onChange={(e) => setDataNascimento(e.target.value)} />
-                </div>
-
-                <div>
-                    <label>Sexo *</label>
-                    <select value={sexo} onChange={(e) => setSexo(e.target.value)}>
-                        <option value="">Selecione</option>
-                        <option value="M">Masculino</option>
-                        <option value="F">Feminino</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label>Estado de saúde *</label>
-                    <select value={estadoSaude} onChange={(e) => setEstadoSaude(e.target.value)}>
-                        <option value="">Selecione</option>
-                        <option value="ESTÁVEL">Estável</option>
-                        <option value="OBSERVACAO">Observação</option>
-                        <option value="GRAVE">Grave</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label>Observações adicionais</label>
-                    <textarea value={observacoes} onChange={(e) => setObservacoes(e.target.value)} />
-                </div>
-
-                <div>
-                    <label>Responsável *</label>
-                    <select value={responsavel} onChange={(e) => setResponsavel(e.target.value)}>
-                        <option value="">Selecione</option>
-                        {loadingUsuarios ? (
-                            <option>Carregando responsáveis...</option>
-                        ) : erroUsuarios ? (
-                            <option>Erro ao carregar</option>
-                        ) : (
-                            usuarios.map((u) => (
-                                <option key={u.id} value={u.id}>
-                                    {u.nome}
-                                </option>
-                            ))
-                        )}
-                    </select>
-                </div>
-
-
-                <button type="submit" style={{ marginTop: "1rem" }}>Registrar</button>
-            </form>
-        </div>
+    arr.sort((a, b) =>
+      String(a.nome).localeCompare(String(b.nome), "pt-BR", {
+        sensitivity: "base",
+      })
     );
+
+    return arr;
+  };
+
+  const loadUsuarios = () => {
+    setLoadingUsuarios(true);
+    setErroUsuarios(null);
+
+    api
+      .get("/usuarios?size=1000&page=0&sort=name,asc", { headers: auth })
+      .then((res) => {
+        setUsuarios(normalizeUsuarios(res.data));
+      })
+      .catch((err) => {
+        setErroUsuarios(err);
+        setUsuarios([]);
+      })
+      .finally(() => setLoadingUsuarios(false));
+  };
+
+  const loadIdosos = () => {
+    setLoadingIdosos(true);
+    setErroIdosos(null);
+
+    api
+      .get("/idosos", { headers: auth })
+      .then((res) => {
+        const arr =
+          (res.data && Array.isArray(res.data.content) && res.data.content) ||
+          (Array.isArray(res.data) && res.data) ||
+          [];
+        setIdosos(arr || []);
+      })
+      .catch((err) => {
+        setErroIdosos(err);
+        setIdosos([]);
+      })
+      .finally(() => setLoadingIdosos(false));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErro("");
+    setSucesso("");
+
+    if (!nome || !dataNascimento || !sexo || !estadoSaude || !responsavel) {
+      setErro("Preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    try {
+      const payload = {
+        nome,
+        dataNascimento: new Date(dataNascimento).toISOString().split("T")[0],
+        sexo,
+        estadoSaude,
+        observacoes,
+        responsavelId: Number(responsavel),
+      };
+
+      await api.post("/idosos", payload, { headers: auth });
+
+      setSucesso("Idoso registrado com sucesso!");
+      setNome("");
+      setDataNascimento("");
+      setSexo("");
+      setEstadoSaude("");
+      setObservacoes("");
+      setResponsavel("");
+
+      loadIdosos();
+    } catch (err) {
+      const msg =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        "Falha ao registrar idoso. Tente novamente.";
+      setErro(msg);
+    }
+  };
+
+  const toInputDate = (value) => {
+    if (!value) return "";
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return value;
+    return d.toISOString().split("T")[0];
+  };
+
+  const handleDelete = async (id) => {
+    if (!confirm("Remover este idoso?")) return;
+    try {
+      await api.delete(`/idosos/${id}`, { headers: auth });
+      loadIdosos();
+    } catch (err) {
+      alert(
+        err?.response?.data?.message ||
+          err?.response?.data?.error ||
+          "Falha ao remover."
+      );
+    }
+  };
+
+  const openEdit = (i) => {
+    setEditing(i);
+    setEditForm({
+      nome: i?.nome || "",
+      dataNascimento: toInputDate(i?.dataNascimento),
+      sexo: i?.sexo || "",
+      estadoSaude: i?.estadoSaude || "",
+      observacoes: i?.observacoes || "",
+      responsavelId: i?.responsavelId != null ? String(i.responsavelId) : "",
+    });
+  };
+
+  const saveEdit = async () => {
+    if (!editing) return;
+    try {
+      const payload = {
+        nome: editForm.nome,
+        dataNascimento: new Date(editForm.dataNascimento)
+          .toISOString()
+          .split("T")[0],
+        sexo: editForm.sexo,
+        estadoSaude: editForm.estadoSaude,
+        observacoes: editForm.observacoes,
+        responsavelId: Number(editForm.responsavelId || 0),
+      };
+      await api.put(`/idosos/${editing.id}`, payload, { headers: auth });
+      setEditing(null);
+      loadIdosos();
+    } catch (err) {
+      alert(
+        err?.response?.data?.message ||
+          err?.response?.data?.error ||
+          "Falha ao salvar."
+      );
+    }
+  };
+
+  const usuariosMap = useMemo(
+    () => Object.fromEntries(usuarios.map((u) => [String(u.id), u.nome])),
+    [usuarios]
+  );
+
+  return (
+    <div className="pg-idoso">
+      <div className="container">
+        <header className="idoso-header">
+          <div className="header-icon" aria-hidden>
+            🏠
+          </div>
+          <div>
+            <h1 className="header-title">Cadastrar Idoso</h1>
+            <p className="header-subtitle">
+              Preencha todos os dados solicitados.
+            </p>
+          </div>
+        </header>
+
+        <div className="grid">
+          <section className="card form-card">
+            <div className="card-title">CADASTRO</div>
+
+            {erro && <div className="alert error">{erro}</div>}
+            {sucesso && <div className="alert success">{sucesso}</div>}
+
+            <form className="form" onSubmit={handleSubmit}>
+              <div className="form-grid">
+                <div className="field">
+                  <label>
+                    Nome Completo <span className="req">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={nome}
+                    onChange={(e) => setNome(e.target.value)}
+                    placeholder="Ex.: Maria da Luz"
+                  />
+                </div>
+
+                <div className="field">
+                  <label>Estado de Saúde</label>
+                  <input
+                    type="text"
+                    value={estadoSaude}
+                    onChange={(e) => setEstadoSaude(e.target.value)}
+                    placeholder="Ex.: ESTAVEL / OBSERVACAO / GRAVE"
+                    list="estadoSaudeSug"
+                  />
+                  <datalist id="estadoSaudeSug">
+                    <option value="ESTAVEL" />
+                    <option value="OBSERVACAO" />
+                    <option value="GRAVE" />
+                  </datalist>
+                </div>
+
+                <div className="field">
+                  <label>
+                    Data Nascimento <span className="req">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={dataNascimento}
+                    onChange={(e) => setDataNascimento(e.target.value)}
+                  />
+                </div>
+
+                <div className="field span-2">
+                  <label>Observações adicionais</label>
+                  <textarea
+                    rows={4}
+                    value={observacoes}
+                    onChange={(e) => setObservacoes(e.target.value)}
+                    placeholder="Alergias, medicações, observações clínicas..."
+                  />
+                </div>
+
+                <div className="field">
+                  <label>
+                    Sexo <span className="req">*</span>
+                  </label>
+                  <select
+                    value={sexo}
+                    onChange={(e) => setSexo(e.target.value)}
+                  >
+                    <option value="">Selecione</option>
+                    <option value="F">Feminino</option>
+                    <option value="M">Masculino</option>
+                  </select>
+                </div>
+
+                <div className="field">
+                  <label>
+                    Responsável <span className="req">*</span>
+                  </label>
+                  <select
+                    value={String(responsavel || "")}
+                    onChange={(e) => setResponsavel(e.target.value)}
+                    style={{ color: "#111827", background: "#ffffff" }}
+                  >
+                    <option value="" disabled>
+                      Selecione
+                    </option>
+
+                    {loadingUsuarios && (
+                      <option disabled>Carregando responsáveis...</option>
+                    )}
+                    {!loadingUsuarios && erroUsuarios && (
+                      <option disabled>Erro ao carregar responsáveis</option>
+                    )}
+                    {!loadingUsuarios &&
+                      !erroUsuarios &&
+                      usuarios.length === 0 && (
+                        <option disabled>Nenhum responsável disponível</option>
+                      )}
+
+                    {usuarios.map((u) => (
+                      <option key={String(u.id)} value={String(u.id)}>
+                        {u.nome}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="actions">
+                <button type="submit" className="btn-primary">
+                  CADASTRAR
+                </button>
+              </div>
+            </form>
+          </section>
+
+          <section className="card list-card">
+            <div className="list-header">
+              <div className="card-title small">
+                <div>GERENCIAMENTO DE IDOSOS</div>
+                <p>Adicione, atualize ou remova um idoso da lista.</p>
+              </div>
+            </div>
+
+            <h2 className="list-title">
+              IDOSOS <span>CADASTRADOS</span>
+            </h2>
+
+            <div className="idoso-list">
+              {loadingIdosos && (
+                <div className="list-empty">Carregando...</div>
+              )}
+              {erroIdosos && (
+                <div className="list-empty">Falha ao carregar.</div>
+              )}
+              {!loadingIdosos && !erroIdosos && idosos.length === 0 && (
+                <div className="list-empty">Nenhum idoso cadastrado.</div>
+              )}
+
+              {!loadingIdosos && !erroIdosos && idosos.length > 0 && (
+                <ul>
+                  {idosos.map((i) => (
+                    <li key={i.id} className="idoso-item">
+                      <div className="idoso-main">
+                        <strong>{i.nome}</strong>
+                        <span>
+                          Responsável:{" "}
+                          <b>
+                            {usuariosMap[String(i.responsavelId)] ||
+                              "Responsável não encontrado"}
+                          </b>
+                          <br />
+                          {i.sexo || "—"} • {i.estadoSaude || "—"}
+                        </span>
+                      </div>
+                      <div className="idoso-actions">
+                        <button
+                          className="icon-btn"
+                          onClick={() => openEdit(i)}
+                          title="Editar"
+                        >
+                          ✎
+                        </button>
+                        <button
+                          className="icon-btn"
+                          onClick={() => handleDelete(i.id)}
+                          title="Remover"
+                        >
+                          🗑
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </section>
+        </div>
+      </div>
+
+      {editing && (
+        <div className="edit-overlay" onClick={() => setEditing(null)}>
+          <div className="edit-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Editar Idoso</h3>
+            <div className="edit-grid">
+              <label>
+                Nome
+                <input
+                  type="text"
+                  value={editForm.nome}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, nome: e.target.value })
+                  }
+                />
+              </label>
+              <label>
+                Data Nascimento
+                <input
+                  type="date"
+                  value={editForm.dataNascimento}
+                  onChange={(e) =>
+                    setEditForm({
+                      ...editForm,
+                      dataNascimento: e.target.value,
+                    })
+                  }
+                />
+              </label>
+              <label>
+                Sexo
+                <select
+                  value={editForm.sexo}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, sexo: e.target.value })
+                  }
+                >
+                  <option value="">Selecione</option>
+                  <option value="F">Feminino</option>
+                  <option value="M">Masculino</option>
+                </select>
+              </label>
+              <label>
+                Estado de Saúde
+                <input
+                  type="text"
+                  value={editForm.estadoSaude}
+                  onChange={(e) =>
+                    setEditForm({
+                      ...editForm,
+                      estadoSaude: e.target.value,
+                    })
+                  }
+                  list="estadoSaudeSug2"
+                />
+                <datalist id="estadoSaudeSug2">
+                  <option value="ESTAVEL" />
+                  <option value="OBSERVACAO" />
+                  <option value="GRAVE" />
+                </datalist>
+              </label>
+              <label className="span-2">
+                Observações
+                <textarea
+                  rows={4}
+                  value={editForm.observacoes}
+                  onChange={(e) =>
+                    setEditForm({
+                      ...editForm,
+                      observacoes: e.target.value,
+                    })
+                  }
+                />
+              </label>
+              <label>
+                Responsável
+                <select
+                  value={String(editForm.responsavelId || "")}
+                  onChange={(e) =>
+                    setEditForm({
+                      ...editForm,
+                      responsavelId: e.target.value,
+                    })
+                  }
+                >
+                  <option value="">Selecione</option>
+                  {usuarios.map((u) => (
+                    <option key={String(u.id)} value={String(u.id)}>
+                      {u.nome}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <div className="edit-actions">
+              <button className="btn-secondary" onClick={() => setEditing(null)}>
+                Cancelar
+              </button>
+              <button className="btn-primary" onClick={saveEdit}>
+                Salvar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
