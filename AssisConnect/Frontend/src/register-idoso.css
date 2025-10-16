@@ -209,7 +209,7 @@
 }
 .edit-modal {
   width: min(720px, 94vw);
-  background: #ffffff;
+  background: #903bff;
   border-radius: 14px;
   padding: 18px;
   box-shadow: 0 18px 40px rgba(0,0,0,.25);
@@ -223,7 +223,7 @@
 .edit-grid label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #111827; }
 .edit-grid input, .edit-grid select, .edit-grid textarea {
   border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 12px;
-  font-size: 14px; background: #f8fafc; outline: none;
+  font-size: 14px; background: #aa73f1; outline: none;
 }
 .edit-grid .span-2 { grid-column: 1 / -1; }
 .edit-actions { display: flex; justify-content: flex-end; gap: 10px; }
