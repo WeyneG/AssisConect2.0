@@ -202,6 +202,17 @@ body, html, #root {
 }
 .btn-manage-users:hover { background: var(--primary); transform: translateY(-2px); }
 
+.btn-register-idoso {
+  padding: 10px 18px;
+  border-radius: 12px;
+  border: none;
+  background: #34a853;
+  color: #fff;
+  font-weight: 600;
+  transition: 0.2s;
+  margin: 5px;
+}
+
 /* ====== FIX: remove “quadrado preto” do <main class="canvas"> ====== */
 .canvas{
   background: transparent !important;
