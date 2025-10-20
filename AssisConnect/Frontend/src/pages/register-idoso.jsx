@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import api from "../services/api";
 import "../register-idoso.css";
+import { Link } from "react-router-dom";
 
 export default function RegisterIdoso() {
   const [nome, setNome] = useState("");
@@ -155,8 +156,8 @@ export default function RegisterIdoso() {
     } catch (err) {
       alert(
         err?.response?.data?.message ||
-          err?.response?.data?.error ||
-          "Falha ao remover."
+        err?.response?.data?.error ||
+        "Falha ao remover."
       );
     }
   };
@@ -192,8 +193,8 @@ export default function RegisterIdoso() {
     } catch (err) {
       alert(
         err?.response?.data?.message ||
-          err?.response?.data?.error ||
-          "Falha ao salvar."
+        err?.response?.data?.error ||
+        "Falha ao salvar."
       );
     }
   };
@@ -207,15 +208,19 @@ export default function RegisterIdoso() {
     <div className="pg-idoso">
       <div className="container">
         <header className="idoso-header">
-          <div className="header-icon" aria-hidden>
-            🏠
+          <div className="header-left">
+            <div className="header-icon" aria-hidden>
+              🏠
+            </div>
+            <div>
+              <h1 className="header-title">Cadastrar Idoso</h1>
+              <p className="header-subtitle">Preencha todos os dados solicitados.</p>
+            </div>
           </div>
-          <div>
-            <h1 className="header-title">Cadastrar Idoso</h1>
-            <p className="header-subtitle">
-              Preencha todos os dados solicitados.
-            </p>
-          </div>
+
+          <Link to="/gerenciar-idosos" className="btn-secondary header-btn">
+            Gerenciar Idosos
+          </Link>
         </header>
 
         <div className="grid">
@@ -331,175 +336,8 @@ export default function RegisterIdoso() {
               </div>
             </form>
           </section>
-
-          <section className="card list-card">
-            <div className="list-header">
-              <div className="card-title small">
-                <div>GERENCIAMENTO DE IDOSOS</div>
-                <p>Adicione, atualize ou remova um idoso da lista.</p>
-              </div>
-            </div>
-
-            <h2 className="list-title">
-              IDOSOS <span>CADASTRADOS</span>
-            </h2>
-
-            <div className="idoso-list">
-              {loadingIdosos && (
-                <div className="list-empty">Carregando...</div>
-              )}
-              {erroIdosos && (
-                <div className="list-empty">Falha ao carregar.</div>
-              )}
-              {!loadingIdosos && !erroIdosos && idosos.length === 0 && (
-                <div className="list-empty">Nenhum idoso cadastrado.</div>
-              )}
-
-              {!loadingIdosos && !erroIdosos && idosos.length > 0 && (
-                <ul>
-                  {idosos.map((i) => (
-                    <li key={i.id} className="idoso-item">
-                      <div className="idoso-main">
-                        <strong>{i.nome}</strong>
-                        <span>
-                          Responsável:{" "}
-                          <b>
-                            {usuariosMap[String(i.responsavelId)] ||
-                              "Responsável não encontrado"}
-                          </b>
-                          <br />
-                          {i.sexo || "—"} • {i.estadoSaude || "—"}
-                        </span>
-                      </div>
-                      <div className="idoso-actions">
-                        <button
-                          className="icon-btn"
-                          onClick={() => openEdit(i)}
-                          title="Editar"
-                        >
-                          ✎
-                        </button>
-                        <button
-                          className="icon-btn"
-                          onClick={() => handleDelete(i.id)}
-                          title="Remover"
-                        >
-                          🗑
-                        </button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </section>
         </div>
       </div>
-
-      {editing && (
-        <div className="edit-overlay" onClick={() => setEditing(null)}>
-          <div className="edit-modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Editar Idoso</h3>
-            <div className="edit-grid">
-              <label>
-                Nome
-                <input
-                  type="text"
-                  value={editForm.nome}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, nome: e.target.value })
-                  }
-                />
-              </label>
-              <label>
-                Data Nascimento
-                <input
-                  type="date"
-                  value={editForm.dataNascimento}
-                  onChange={(e) =>
-                    setEditForm({
-                      ...editForm,
-                      dataNascimento: e.target.value,
-                    })
-                  }
-                />
-              </label>
-              <label>
-                Sexo
-                <select
-                  value={editForm.sexo}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, sexo: e.target.value })
-                  }
-                >
-                  <option value="">Selecione</option>
-                  <option value="F">Feminino</option>
-                  <option value="M">Masculino</option>
-                </select>
-              </label>
-              <label>
-                Estado de Saúde
-                <input
-                  type="text"
-                  value={editForm.estadoSaude}
-                  onChange={(e) =>
-                    setEditForm({
-                      ...editForm,
-                      estadoSaude: e.target.value,
-                    })
-                  }
-                  list="estadoSaudeSug2"
-                />
-                <datalist id="estadoSaudeSug2">
-                  <option value="ESTAVEL" />
-                  <option value="OBSERVACAO" />
-                  <option value="GRAVE" />
-                </datalist>
-              </label>
-              <label className="span-2">
-                Observações
-                <textarea
-                  rows={4}
-                  value={editForm.observacoes}
-                  onChange={(e) =>
-                    setEditForm({
-                      ...editForm,
-                      observacoes: e.target.value,
-                    })
-                  }
-                />
-              </label>
-              <label>
-                Responsável
-                <select
-                  value={String(editForm.responsavelId || "")}
-                  onChange={(e) =>
-                    setEditForm({
-                      ...editForm,
-                      responsavelId: e.target.value,
-                    })
-                  }
-                >
-                  <option value="">Selecione</option>
-                  {usuarios.map((u) => (
-                    <option key={String(u.id)} value={String(u.id)}>
-                      {u.nome}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-            <div className="edit-actions">
-              <button className="btn-secondary" onClick={() => setEditing(null)}>
-                Cancelar
-              </button>
-              <button className="btn-primary" onClick={saveEdit}>
-                Salvar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
-  );
+  )
 }

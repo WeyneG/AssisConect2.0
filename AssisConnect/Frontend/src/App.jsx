@@ -6,6 +6,7 @@ import Register from "./pages/Register";
 import Home from "./pages/Home";
 import Users from "./pages/Users";
 import RegisterIdoso from "./pages/register-idoso";
+import GerenciarIdosos from "./pages/gerenciar-idosos";
 
 
 export default function App() {
@@ -45,6 +46,16 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="/gerenciar-idosos"
+            element={
+              <ProtectedRoute>
+                <GerenciarIdosos />
+              </ProtectedRoute>
+            }
+          />
+
         </Routes>
       </AuthProvider>
     </BrowserRouter>
