@@ -3,6 +3,8 @@ import React, { useState, useEffect, useMemo } from "react";
 import api from "../services/api";
 import "../register-idoso.css";
 import { Link } from "react-router-dom";
+import IconUsers from "../assets/btn-users.png";
+import Sidebar from "../components/sidebar";
 
 export default function RegisterIdoso() {
   const [nome, setNome] = useState("");
@@ -205,12 +207,15 @@ export default function RegisterIdoso() {
   );
 
   return (
+  <div className="home-root">
+      <Sidebar />
+
     <div className="pg-idoso">
       <div className="container">
         <header className="idoso-header">
           <div className="header-left">
             <div className="header-icon" aria-hidden>
-              🏠
+              <img src={IconUsers} alt="Gestão / Usuários" className="header-icon-img" />
             </div>
             <div>
               <h1 className="header-title">Cadastrar Idoso</h1>
@@ -225,7 +230,7 @@ export default function RegisterIdoso() {
 
         <div className="grid">
           <section className="card form-card">
-            <div className="card-title">CADASTRO</div>
+            <div className="card-title">CADASTRO DE IDOSOS</div>
 
             {erro && <div className="alert error">{erro}</div>}
             {sucesso && <div className="alert success">{sucesso}</div>}
@@ -245,65 +250,45 @@ export default function RegisterIdoso() {
                 </div>
 
                 <div className="field">
-                  <label>Estado de Saúde</label>
-                  <input
-                    type="text"
-                    value={estadoSaude}
-                    onChange={(e) => setEstadoSaude(e.target.value)}
-                    placeholder="Ex.: ESTAVEL / OBSERVACAO / GRAVE"
-                    list="estadoSaudeSug"
-                  />
-                  <datalist id="estadoSaudeSug">
-                    <option value="ESTAVEL" />
-                    <option value="OBSERVACAO" />
-                    <option value="GRAVE" />
-                  </datalist>
+                  <label>
+                    Estado de Saúde <span className="req">*</span>
+                  </label>
+                  <select value={estadoSaude} onChange={(e) => setEstadoSaude(e.target.value)} >
+                    <option value="" disabled>Selecione</option>
+                    <option value="ESTAVEL">Estável</option>
+                    <option value="OBSERVACAO">Em observação</option>
+                    <option value="GRAVE">Grave</option>
+                  </select>
                 </div>
 
                 <div className="field">
                   <label>
                     Data Nascimento <span className="req">*</span>
                   </label>
-                  <input
-                    type="date"
-                    value={dataNascimento}
-                    onChange={(e) => setDataNascimento(e.target.value)}
-                  />
-                </div>
-
-                <div className="field span-2">
-                  <label>Observações adicionais</label>
-                  <textarea
-                    rows={4}
-                    value={observacoes}
-                    onChange={(e) => setObservacoes(e.target.value)}
-                    placeholder="Alergias, medicações, observações clínicas..."
-                  />
+                  <input type="date" value={dataNascimento} onChange={(e) => setDataNascimento(e.target.value)} onClick={(e) => { try { e.target.showPicker(); } catch { } }} />
                 </div>
 
                 <div className="field">
                   <label>
                     Sexo <span className="req">*</span>
                   </label>
-                  <select
-                    value={sexo}
-                    onChange={(e) => setSexo(e.target.value)}
-                  >
-                    <option value="">Selecione</option>
+                  <select value={sexo} onChange={(e) => setSexo(e.target.value)} >
+                    <option value="" disabled>Selecione</option>
                     <option value="F">Feminino</option>
                     <option value="M">Masculino</option>
                   </select>
                 </div>
 
-                <div className="field">
+                <div className="field span-2">
+                  <label>Observações adicionais</label>
+                  <textarea rows={4} value={observacoes} onChange={(e) => setObservacoes(e.target.value)} placeholder="Alergias, medicações, observações clínicas..." />
+                </div>
+
+                <div className="field responsavel-field">
                   <label>
                     Responsável <span className="req">*</span>
                   </label>
-                  <select
-                    value={String(responsavel || "")}
-                    onChange={(e) => setResponsavel(e.target.value)}
-                    style={{ color: "#111827", background: "#ffffff" }}
-                  >
+                  <select value={String(responsavel || "")} onChange={(e) => setResponsavel(e.target.value)} style={{ color: "#111827", background: "#ffffff" }} >
                     <option value="" disabled>
                       Selecione
                     </option>
@@ -339,5 +324,6 @@ export default function RegisterIdoso() {
         </div>
       </div>
     </div>
+  </div>
   )
 }
