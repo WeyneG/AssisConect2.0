@@ -1,9 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-// Importe a instância api e o novo serviço
 import { dashboardService } from "../services/api";
-
 import "../home.css";
+import Sidebar from "../components/sidebar";
 
 import IconPerfil from "../assets/btn-perfil.png";
 import IconHome from "../assets/btn-home.png";
@@ -11,7 +10,6 @@ import IconUsers from "../assets/btn-users.png";
 import IconCardapio from "../assets/btn-cardapio.png";
 import IconRelatorio from "../assets/btn-relatorio.png";
 import IconSair from "../assets/btn-sair.png";
-import IconBalloon from "../assets/ballon.png";
 
 // Função para calcular a idade a partir da data de nascimento (YYYY-MM-DD)
 function calculateAge(dateString) {
@@ -88,28 +86,30 @@ export default function Home() {
     return (
         <div className="home-root">
             <aside className="sidebar">
-                <div className="sb-slot sb-gap" />
-                <button className="sb-btn" aria-label="Início" data-tip="Início" onClick={go("/home")}>
+                <div className="sidebar-content">
+                    <button className="sb-btn" aria-label="Início" onClick={go("/home")}>
                     <img src={IconHome} alt="Início" className="sb-icon" />
-                </button>
-                <button className="sb-btn" aria-label="Moradores" data-tip="Moradores" onClick={go("/moradores")}>
+                    </button>
+                    <button className="sb-btn" aria-label="Moradores" onClick={go("/moradores")}>
                     <img src={IconUsers} alt="Moradores" className="sb-icon" />
-                </button>
-                <button className="sb-btn" aria-label="Cardápio" data-tip="Cardápio" onClick={go("/cardapio")}>
+                    </button>
+                    <button className="sb-btn" aria-label="Cardápio" onClick={go("/cardapio")}>
                     <img src={IconCardapio} alt="Cardápio" className="sb-icon" />
-                </button>
-                <button className="sb-btn" aria-label="Relatórios" data-tip="Relatórios" onClick={go("/relatorios")}>
+                    </button>
+                    <button className="sb-btn" aria-label="Relatórios" onClick={go("/relatorios")}>
                     <img src={IconRelatorio} alt="Relatórios" className="sb-icon" />
-                </button>
-                <div className="sb-spacer" />
-                <button className="sb-avatar" aria-label="Perfil" data-tip="Perfil" onClick={go("/perfil")}>
-                    <img src={IconPerfil} alt="Perfil" className="sb-icon avatar" />
-                </button>
-                <button className="sb-btn sb-exit" aria-label="Sair" data-tip="Sair" onClick={() => { localStorage.removeItem("token"); navigate("/"); }}>
-                    <img src={IconSair} alt="Sair" className="sb-icon" />
-                </button>
-            </aside>
+                    </button>
+                </div>
 
+                <div className="sidebar-bottom">
+                    <div className="sb-avatar" onClick={go("/perfil")}>
+                    <img src={IconPerfil} alt="Perfil" />
+                    </div>
+                    <button className="sb-btn sb-exit" aria-label="Sair" onClick={() => { localStorage.removeItem("token"); navigate("/"); }}>
+                    <img src={IconSair} alt="Sair" className="sb-icon" />
+                    </button>
+                </div>
+            </aside>
             <div className="page">
                 <div className="content-grid">
                     {/* Hero */}
