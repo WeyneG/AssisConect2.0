@@ -2,6 +2,8 @@ package com.assisconnect.backend.domain;
 import java.sql.Time;
 import java.util.Date;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -10,8 +12,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.persistence.Table;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
+@Table(name = "atividades")
 public class Atividade {
 
     @Id
@@ -19,9 +25,13 @@ public class Atividade {
     private Long id;
 
     private String nome;
-    private Date data;
-    private Time horario_inicio;
-    private Time horario_fim;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate data;
+
+    @DateTimeFormat(pattern = "HH:mm:ss")
+    private LocalTime horario_inicio;
+    private LocalTime horario_fim;
 
     @ManyToOne
     @JoinColumn(name = "responsavel_id")
@@ -59,27 +69,27 @@ public class Atividade {
         this.nome = nome;
     }
 
-    public Date getData() {
+    public LocalDate getData() {
         return data;
     }
 
-    public void setData(Date data) {
+    public void setData(LocalDate data) {
         this.data = data;
     }
 
-    public Time getHorario_inicio() {
+    public LocalTime getHorario_inicio() {
         return horario_inicio;
     }
 
-    public void setHorario_inicio(Time horario_inicio) {
+    public void setHorario_inicio(LocalTime horario_inicio) {
         this.horario_inicio = horario_inicio;
     }
 
-    public Time getHorario_fim() {
+    public LocalTime getHorario_fim() {
         return horario_fim;
     }
 
-    public void setHorario_fim(Time horario_fim) {
+    public void setHorario_fim(LocalTime horario_fim) {
         this.horario_fim = horario_fim;
     }
 
