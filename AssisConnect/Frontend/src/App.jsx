@@ -7,6 +7,8 @@ import Home from "./pages/Home";
 import Users from "./pages/Users";
 import RegisterIdoso from "./pages/register-idoso";
 import GerenciarIdosos from "./pages/gerenciar-idosos";
+import GerenciarAtividadesIdoso from "./pages/gerenciar-atividades-idoso";
+
 
 
 export default function App() {
@@ -38,6 +40,7 @@ export default function App() {
           />
 
           <Route path="*" element={<Navigate to="/" replace />} />
+
           <Route
             path="/users"
             element={
@@ -55,6 +58,16 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="/gerenciar-atividades-idoso"
+            element={
+              <ProtectedRoute>
+                <GerenciarAtividadesIdoso />
+              </ProtectedRoute>
+            }
+          />
+
 
         </Routes>
       </AuthProvider>

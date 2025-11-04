@@ -96,9 +96,10 @@ export default function Home() {
                     <button className="sb-btn" aria-label="Cardápio" onClick={go("/cardapio")}>
                     <img src={IconCardapio} alt="Cardápio" className="sb-icon" />
                     </button>
-                    <button className="sb-btn" aria-label="Relatórios" onClick={go("/relatorios")}>
-                    <img src={IconRelatorio} alt="Relatórios" className="sb-icon" />
+                    <button className="sb-btn" aria-label="Atividades" onClick={go("/gerenciar-atividades-idoso")}>
+                        <img src={IconRelatorio} alt="Atividades" className="sb-icon" />
                     </button>
+
                 </div>
 
                 <div className="sidebar-bottom">
