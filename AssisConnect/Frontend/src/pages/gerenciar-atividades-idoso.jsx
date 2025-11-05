@@ -48,6 +48,12 @@ export default function GerenciarAtividadesIdoso() {
         return m;
     }, [usuarios]);
 
+    const funcByIdFuncionario = useMemo(() => {
+        const m = new Map();
+        usuarios.filter(f => f.role === "funcionario").forEach(f => m.set(String(f.id), f.name));
+        return m;
+    }, [usuarios]);
+
 
 
     useEffect(() => {
@@ -77,14 +83,12 @@ export default function GerenciarAtividadesIdoso() {
         const fetchUsuarios = async () => {
             try {
                 const res = await api.get("/usuarios", {
-                    params: { size: 1000, page: 0, sort: "name,asc" } // backend usa 'name'
+                    params: { size: 1000, page: 0, sort: "name,asc" }
                 });
                 const data = res.data;
 
-                // sua API devolve Page<UserResponse>, então pegue 'content'
                 const page = Array.isArray(data?.content) ? data.content : (Array.isArray(data) ? data : []);
 
-                // mantenha só quem é funcionário
                 const somenteFuncionarios = page.filter(u => (u.role || "").toLowerCase() === "funcionario");
 
                 setUsuarios(somenteFuncionarios);
@@ -103,9 +107,9 @@ export default function GerenciarAtividadesIdoso() {
     const atividadesDoDia = useMemo(() => {
         if (!data) return [];
 
-        const formattedData = new Date(data).toISOString().split('T')[0]; // Formato yyyy-MM-dd
+        const formattedData = new Date(data).toISOString().split('T')[0];
         return atividades.filter((a) => {
-            const atividadeData = new Date(a.data).toISOString().split('T')[0]; // Garantir que a comparação seja feita no mesmo formato
+            const atividadeData = new Date(a.data).toISOString().split('T')[0]; 
             return atividadeData === formattedData;
         });
     }, [atividades, data]);
@@ -146,6 +150,29 @@ export default function GerenciarAtividadesIdoso() {
         setErro("");
         setTouched({ nome: true, data: true, inicio: true, fim: true, responsavelId: true, observacoes: true });
 
+        const dataSelecionada = new Date(data);
+        const dataAtual = new Date();
+
+        dataAtual.setHours(0, 0, 0, 0);
+        dataSelecionada.setHours(0, 0, 0, 0); 
+
+        if (dataSelecionada < dataAtual) {
+            setErro("Não é permitido cadastrar atividades para datas anteriores ao dia atual. Apenas para os dias seguintes.");
+            return; 
+        }
+
+        if (Object.keys(camposInvalidos).length > 0) {
+            setErro(
+                camposInvalidos.conflito
+                    ? "Conflito de horário detectado com uma atividade existente. Ajuste os horários."
+                    : camposInvalidos.intervalo
+                        ? "O horário de término deve ser maior que o horário de início."
+                        : "Preencha os campos obrigatórios."
+            );
+            return;
+        }
+
+
         if (Object.keys(camposInvalidos).length > 0) {
             setErro(
                 camposInvalidos.conflito
@@ -159,9 +186,9 @@ export default function GerenciarAtividadesIdoso() {
 
         const payload = {
             nome,
-            data: new Date(data).toISOString().split('T')[0], // já vem no formato yyyy-MM-dd
-            horario_inicio: `${inicio}:00`, // Horário completo com :00
-            horario_fim: `${fim}:00`, // Horário completo com :00
+            data: new Date(data).toISOString().split('T')[0],
+            horario_inicio: `${inicio}:00`,
+            horario_fim: `${fim}:00`,
             responsavel: { id: Number(responsavelId) },
             observacoes,
         };
@@ -200,7 +227,6 @@ export default function GerenciarAtividadesIdoso() {
                     </button>
                 </div>
 
-                {/* Feedbacks */}
                 {!!erro && (
                     <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-red-700 text-sm">
                         {erro}
@@ -213,7 +239,6 @@ export default function GerenciarAtividadesIdoso() {
                 )}
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* Formulário */}
                     <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm p-4 md:p-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="md:col-span-2">
@@ -345,6 +370,7 @@ export default function GerenciarAtividadesIdoso() {
                                 onClick={() => {
                                     setNome("");
                                     setInicio("");
+                                    setData("");
                                     setFim("");
                                     setResponsavelId("");
                                     setObservacoes("");
@@ -357,11 +383,9 @@ export default function GerenciarAtividadesIdoso() {
                         </div>
                     </form>
 
-                    {/* Lista do dia */}
                     <div className="bg-white rounded-2xl shadow-sm p-4 md:p-6">
                         <div className="flex items-center justify-between mb-3">
                             <h2 className="text-base md:text-lg font-semibold text-slate-800">Atividades do dia selecionado</h2>
-                            <span className="text-xs text-slate-500">Use para verificar conflitos</span>
                         </div>
 
                         <div className="overflow-x-auto">
@@ -378,13 +402,17 @@ export default function GerenciarAtividadesIdoso() {
                                 <tbody>
                                     {!data && (
                                         <tr>
-                                            <td className="py-2 text-slate-500" colSpan={5}>Selecione uma <strong>data</strong> para carregar as atividades.</td>
+                                            <td className="py-2 text-slate-500" colSpan={5}>
+                                                Selecione uma <strong>data</strong> para carregar as atividades.
+                                            </td>
                                         </tr>
                                     )}
 
                                     {data && atividadesDoDia.length === 0 && (
                                         <tr>
-                                            <td className="py-2 text-slate-500" colSpan={5}>Sem atividades em {formatISOToBR(data)}.</td>
+                                            <td className="py-2 text-slate-500" colSpan={5}>
+                                                Sem atividades em {formatISOToBR(data)}.
+                                            </td>
                                         </tr>
                                     )}
 
@@ -392,12 +420,20 @@ export default function GerenciarAtividadesIdoso() {
                                         <tr key={a.id} className="border-t border-slate-100">
                                             <td className="py-2 pr-3">{a.nome || a.titulo || "(sem nome)"}</td>
                                             <td className="py-2 pr-3">{formatISOToBR(a.data)}</td>
-                                            <td className="py-2 pr-3">{a.horarioInicio || a.inicio || a.horaInicio || ""}</td>
-                                            <td className="py-2 pr-3">{a.horarioFim || a.fim || a.horaFim || ""}</td>
-                                            <td className="py-2"> {a.responsavelNome || funcById.get(String(a.responsavelId)) || a.responsavelId || "-"}</td>
+                                            <td className="py-2 pr-3">
+                                                {a.horario_inicio || a.inicio || a.horaInicio || ""}
+                                            </td>
+                                            <td className="py-2 pr-3">
+                                                {a.horario_fim || a.fim || a.horaFim || ""}
+                                            </td>
+                                            <td className="py-2">
+                                                {funcByIdFuncionario.get(String(a.responsavelId)) || a.nome || "Responsável não atribuído"}
+                                            </td>
+
                                         </tr>
                                     ))}
                                 </tbody>
+
                             </table>
                         </div>
 
