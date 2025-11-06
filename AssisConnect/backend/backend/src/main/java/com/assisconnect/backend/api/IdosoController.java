@@ -23,7 +23,7 @@ import com.assisconnect.backend.domain.User;
 import com.assisconnect.backend.service.IdosoService;
 
 @RestController
-@RequestMapping("/idosos")
+@RequestMapping({"/idosos", "/api/idosos"})
 @CrossOrigin(origins = "*")
 public class IdosoController {
 

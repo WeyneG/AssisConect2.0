@@ -417,4 +417,22 @@
     width: 95%;
     padding: 20px;
   }
+  .idoso-actions{ display:flex; gap:10px; align-items:center; }
+
+.icon-btn{
+  width:44px; height:44px; border-radius:12px; border:0;
+  background:#111f3a; color:#fff; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 6px 16px rgba(0,0,0,.12); transition:.2s;
+}
+.icon-btn:hover{ transform:translateY(-2px); filter:brightness(1.05); }
+
+/* Botão textual ao lado dos ícones */
+.btn-view-acts{
+  padding:10px 14px; border-radius:12px; border:0;
+  background:#0e7490; color:#fff; font-weight:600; cursor:pointer;
+  box-shadow:0 6px 16px rgba(0,0,0,.12); transition:.2s;
+}
+.btn-view-acts:hover{ transform:translateY(-2px); filter:brightness(1.06); }
+
 }
