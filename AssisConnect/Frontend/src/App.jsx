@@ -13,6 +13,8 @@ import GerenciarIdosos from "./pages/gerenciar-idosos";
 import GerenciarAtividadesIdoso from "./pages/gerenciar-atividades-idoso";
 import GerenciarCardapio from "./pages/gerenciar-cardapio";
 import Perfil from "./pages/Perfil";
+import AlocarAtividade from "./pages/alocar-atividade";
+import AtividadesPorIdoso from "./pages/atividades-por-idoso";
 
 export default function App() {
   return (
@@ -81,6 +83,22 @@ export default function App() {
             }
           />
 
+          <Route
+            path="/alocar-atividade"
+            element={
+              <ProtectedRoute>
+                <AlocarAtividade />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/atividades-por-idoso/:id"
+            element={
+              <ProtectedRoute>
+                <AtividadesPorIdoso />
+              </ProtectedRoute>
+            }
+          />
           {/* Rota curinga sempre por último */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -32,9 +34,9 @@ public class User implements Serializable {
     @Column(name = "email", nullable = false, unique = true, length = 150)
     private String email;
 
-    @NotBlank(message = "Senha é obrigatória")
     @Column(name = "senha", nullable = false, length = 255)
-    private String passwordHash;
+   @JsonIgnore
+   private String passwordHash;
 
     
     @Column(name = "role", nullable = false, length = 20)

@@ -1,8 +1,21 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import "../gerenciar-idosos.css";
 import Sidebar from "../components/sidebar";
 import IconUsers from "../assets/btn-users.png";
+
+/* Normaliza qualquer formato de resposta (array, Page, HAL) */
+const toArray = (data) => {
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.content)) return data.content;
+  if (data?._embedded) {
+    const k = Object.keys(data._embedded)[0];
+    if (k && Array.isArray(data._embedded[k])) return data._embedded[k];
+  }
+  return [];
+};
 
 export default function GerenciarIdosos() {
   // === Estados principais ===
@@ -23,40 +36,82 @@ export default function GerenciarIdosos() {
 
   const token = localStorage.getItem("token");
   const auth = token ? { Authorization: `Bearer ${token}` } : {};
+  const navigate = useNavigate();
 
   // === Carregar dados ===
   useEffect(() => {
     loadUsuarios();
     loadIdosos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Carrega usuários com várias tentativas (rotas/params diferentes)
   const loadUsuarios = async () => {
+    const tryFetch = async (url, params) => {
+      const res = await api.get(url, { headers: auth, params });
+      return toArray(res.data);
+    };
+
     try {
-      const res = await api.get("/usuarios?size=1000&page=0&sort=name,asc", {
-        headers: auth,
-      });
-      const data =
-        (Array.isArray(res.data.content) && res.data.content) ||
-        (Array.isArray(res.data) && res.data) ||
-        [];
+      let data = [];
+
+     
+      try { data = await tryFetch("/api/usuarios", { size: 1000, page: 0, sort: "name,asc" }); } catch { /* empty */ }
+
+      
+      if (!data.length) { try { data = await tryFetch("/api/usuarios", { size: 1000, page: 0 }); } catch { /* empty */ } }
+
+      
+      if (!data.length) { try { data = await tryFetch("/usuarios", { size: 1000, page: 0, sort: "name,asc" }); } catch { /* empty */ } }
+
+     
+      if (!data.length) { try { data = await tryFetch("/usuarios", { size: 1000, page: 0 }); } catch { /* empty */ } }
+
+     
+      if (!data.length) { try { data = await tryFetch("/api/usuarios"); } catch { /* empty */ } }
+      if (!data.length) { try { data = await tryFetch("/usuarios"); } catch { /* empty */ } }
+
+      // Ordena por nome para UX melhor
+      data.sort((a, b) => (a?.nome || a?.name || "").localeCompare(b?.nome || b?.name || ""));
       setUsuarios(data);
     } catch (e) {
-      console.error(e);
+      console.error("Falha ao carregar usuários:", e);
       setUsuarios([]);
     }
   };
 
+  // Carrega idosos com fallback de rotas/params
   const loadIdosos = async () => {
     setLoading(true);
+    const tryFetch = async (url, params) => {
+      const res = await api.get(url, { headers: auth, params });
+      return toArray(res.data);
+    };
+
     try {
-      const res = await api.get("/idosos", { headers: auth });
-      const data =
-        (Array.isArray(res.data.content) && res.data.content) ||
-        (Array.isArray(res.data) && res.data) ||
-        [];
+      let data = [];
+
+      // 1) /api/idosos com paginação + sort
+      try { data = await tryFetch("/api/idosos", { size: 1000, page: 0, sort: "nome,asc" }); } catch { /* empty */ }
+
+      // 2) /api/idosos sem sort
+      if (!data.length) { try { data = await tryFetch("/api/idosos", { size: 1000, page: 0 }); } catch { /* empty */ } }
+
+      // 3) /idosos (sem /api), com paginação + sort
+      if (!data.length) { try { data = await tryFetch("/idosos", { size: 1000, page: 0, sort: "nome,asc" }); } catch { /* empty */ } }
+
+      // 4) /idosos sem sort
+      if (!data.length) { try { data = await tryFetch("/idosos", { size: 1000, page: 0 }); } catch { /* empty */ } }
+
+      // 5) Últimas tentativas: sem params
+      if (!data.length) { try { data = await tryFetch("/api/idosos"); } catch { /* empty */ } }
+      if (!data.length) { try { data = await tryFetch("/idosos"); } catch { /* empty */ } }
+
+      // Ordena por nome se necessário
+      data.sort((a, b) => (a?.nome || "").localeCompare(b?.nome || ""));
       setIdosos(data);
     } catch (e) {
-      console.error(e);
+      console.error("Falha ao carregar idosos:", e);
       setIdosos([]);
     } finally {
       setLoading(false);
@@ -85,7 +140,15 @@ export default function GerenciarIdosos() {
 
     try {
       setLoading(true);
-      await api.post("/idosos", payload, { headers: auth });
+      const { data: novo } = await api.post("/api/idosos", payload, { headers: auth });
+
+      // Atualização otimista (se vier ID)
+      if (novo?.id) {
+        setIdosos((prev) =>
+          [...(prev || []), novo].sort((a, b) => (a?.nome || "").localeCompare(b?.nome || ""))
+        );
+      }
+
       setSucesso("Idoso cadastrado com sucesso!");
       setNome("");
       setDataNascimento("");
@@ -93,7 +156,9 @@ export default function GerenciarIdosos() {
       setEstadoSaude("");
       setObservacoes("");
       setResponsavel("");
-      loadIdosos();
+
+      // Sincroniza com o servidor
+      await loadIdosos();
     } catch (e) {
       console.error(e);
       setErro("Erro ao cadastrar idoso. Tente novamente.");
@@ -105,8 +170,8 @@ export default function GerenciarIdosos() {
   const handleDelete = async (id) => {
     if (!window.confirm("Deseja realmente excluir este idoso?")) return;
     try {
-      await api.delete(`/idosos/${id}`, { headers: auth });
-      setIdosos((prev) => prev.filter((i) => i.id !== id));
+      await api.delete(`/api/idosos/${id}`, { headers: auth });
+      setIdosos((prev) => (prev || []).filter((i) => i.id !== id));
     } catch (e) {
       alert("Erro ao excluir idoso.");
     }
@@ -115,14 +180,22 @@ export default function GerenciarIdosos() {
   const handleEditSave = async () => {
     if (!editing) return;
     try {
-      await api.put(`/idosos/${editing.id}`, editForm, { headers: auth });
+      const body = {
+        ...editForm,
+        // força número no responsavelId se existir
+        ...(editForm?.responsavelId ? { responsavelId: Number(editForm.responsavelId) } : {}),
+      };
+      const { data: salvo } = await api.put(`/api/idosos/${editing.id}`, body, { headers: auth });
+      setIdosos((prev) =>
+        (prev || []).map((i) => (i.id === editing.id ? { ...i, ...(salvo || body) } : i))
+      );
       setEditing(null);
-      loadIdosos();
     } catch (e) {
       alert("Erro ao salvar alterações.");
     }
   };
 
+  // Nome do responsável (embedado ou via id)
   const usuariosMap = useMemo(
     () =>
       Object.fromEntries(
@@ -131,7 +204,6 @@ export default function GerenciarIdosos() {
     [usuarios]
   );
 
-  // === Render ===
   return (
     <div className="home-root">
       <Sidebar />
@@ -151,7 +223,7 @@ export default function GerenciarIdosos() {
             </div>
           </header>
 
-          {/* FORMULÁRIO DE CADASTRO */}
+          {/* FORMULÁRIO */}
           <section className="card form-card">
             <div className="card-title">CADASTRO DE IDOSO</div>
             {erro && <div className="alert error">{erro}</div>}
@@ -180,10 +252,7 @@ export default function GerenciarIdosos() {
 
                 <div className="field">
                   <label>Sexo *</label>
-                  <select
-                    value={sexo}
-                    onChange={(e) => setSexo(e.target.value)}
-                  >
+                  <select value={sexo} onChange={(e) => setSexo(e.target.value)}>
                     <option value="">Selecione</option>
                     <option value="F">Feminino</option>
                     <option value="M">Masculino</option>
@@ -237,16 +306,16 @@ export default function GerenciarIdosos() {
             </form>
           </section>
 
-          {/* LISTAGEM */}
+          {/* LISTA */}
           <section className="card list-card">
             <div className="card-title">IDOSOS CADASTRADOS</div>
 
             {loading && <div className="list-empty">Carregando...</div>}
-            {!loading && idosos.length === 0 && (
+            {!loading && (idosos?.length || 0) === 0 && (
               <div className="list-empty">Nenhum idoso cadastrado.</div>
             )}
 
-            {!loading && idosos.length > 0 && (
+            {!loading && (idosos?.length || 0) > 0 && (
               <ul className="idoso-list">
                 {idosos.map((i) => (
                   <li key={i.id} className="idoso-item">
@@ -255,28 +324,48 @@ export default function GerenciarIdosos() {
                       <span>
                         Responsável:{" "}
                         <b>
-                          {usuariosMap[String(i.responsavelId)] ||
+                          {i?.responsavel?.nome ||
+                            i?.responsavel?.name ||
+                            usuariosMap[String(i.responsavelId)] ||
                             "Não informado"}
                         </b>
                         <br />
                         {i.sexo || "—"} • {i.estadoSaude || "—"}
                       </span>
                     </div>
+
                     <div className="idoso-actions">
                       <button
                         className="icon-btn"
                         onClick={() => {
                           setEditing(i);
-                          setEditForm(i);
+                          setEditForm({
+                            ...i,
+                            responsavelId:
+                              i?.responsavelId ??
+                              i?.responsavel?.id ??
+                              "",
+                          });
                         }}
+                        title="Editar"
                       >
                         ✎
                       </button>
+
                       <button
                         className="icon-btn"
                         onClick={() => handleDelete(i.id)}
+                        title="Excluir"
                       >
                         🗑
+                      </button>
+
+                      <button
+                        className="btn-view-acts"
+                        onClick={() => navigate(`/atividades-por-idoso/${i.id}`)}
+                        title="Ver atividades do idoso"
+                      >
+                        Ver atividades
                       </button>
                     </div>
                   </li>
@@ -288,17 +377,14 @@ export default function GerenciarIdosos() {
           {/* MODAL DE EDIÇÃO */}
           {editing && (
             <div className="edit-overlay" onClick={() => setEditing(null)}>
-              <div
-                className="edit-modal"
-                onClick={(e) => e.stopPropagation()}
-              >
+              <div className="edit-modal" onClick={(e) => e.stopPropagation()}>
                 <h3>Editar Idoso</h3>
                 <div className="edit-grid">
                   <label>
                     Nome
                     <input
                       type="text"
-                      value={editForm.nome}
+                      value={editForm.nome || ""}
                       onChange={(e) =>
                         setEditForm({ ...editForm, nome: e.target.value })
                       }
@@ -308,7 +394,7 @@ export default function GerenciarIdosos() {
                     Data Nascimento
                     <input
                       type="date"
-                      value={editForm.dataNascimento}
+                      value={editForm.dataNascimento || ""}
                       onChange={(e) =>
                         setEditForm({
                           ...editForm,
@@ -320,7 +406,7 @@ export default function GerenciarIdosos() {
                   <label>
                     Sexo
                     <select
-                      value={editForm.sexo}
+                      value={editForm.sexo || ""}
                       onChange={(e) =>
                         setEditForm({ ...editForm, sexo: e.target.value })
                       }
@@ -334,7 +420,7 @@ export default function GerenciarIdosos() {
                     Estado de Saúde
                     <input
                       type="text"
-                      value={editForm.estadoSaude}
+                      value={editForm.estadoSaude || ""}
                       onChange={(e) =>
                         setEditForm({
                           ...editForm,
@@ -353,7 +439,7 @@ export default function GerenciarIdosos() {
                     Observações
                     <textarea
                       rows={4}
-                      value={editForm.observacoes}
+                      value={editForm.observacoes || ""}
                       onChange={(e) =>
                         setEditForm({
                           ...editForm,
