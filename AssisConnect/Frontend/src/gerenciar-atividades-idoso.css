@@ -10,7 +10,7 @@
 }
 
 /* =================== ESTRUTURA =================== */
-.pg-idoso {
+.pg-atividade {
   background: var(--bg);
   min-height: 100vh;
   width: 100vw;
@@ -19,10 +19,11 @@
   align-items: center;
   overflow-x: hidden;
   overflow-y: auto;
+  margin-left: 85px; /* espaço igual à sidebar */
   box-sizing: border-box;
 }
 
-.pg-idoso .container {
+.pg-atividade .container {
   width: 100%;
   max-width: 1280px;
   display: flex;
@@ -31,15 +32,11 @@
   padding-inline: clamp(16px, 3vw, 40px);
 }
 
-.pg-idoso {
-  margin-left: 85px; /* espaço igual à largura da sidebar */
-}
-
 /* =================== HEADER =================== */
-.idoso-header {
-  width: 95%;                  /* ocupa mais espaço horizontalmente */
-  max-width: 1200px;           /* limite visual agradável */
-  margin: 30px auto 30px;      /* margem superior e inferior */
+.atividade-header {
+  width: 95%;
+  max-width: 1200px;
+  margin: 30px auto;
   padding: 24px 30px;
   border-radius: 16px;
   background: linear-gradient(90deg, var(--primary) 0%, #7ea3ff 100%);
@@ -51,14 +48,12 @@
   box-sizing: border-box;
 }
 
-/* bloco esquerdo do header */
 .header-left {
   display: flex;
   align-items: center;
   gap: 18px;
 }
 
-/* ícone arredondado translúcido e proporcional */
 .header-icon {
   width: 60px;
   height: 60px;
@@ -68,14 +63,12 @@
   place-items: center;
   overflow: hidden;
 }
-.header-icon-img {
+.header-icon img {
   width: 28px;
   height: auto;
-  object-fit: contain;
   filter: brightness(0) invert(1);
 }
 
-/* textos do header */
 .header-title {
   font-weight: 700;
   font-size: 1.6rem;
@@ -87,33 +80,16 @@
   margin-top: 4px;
 }
 
-/* botão à direita */
-.btn-secondary.header-btn {
-  background: #fff;
-  color: var(--primary);
-  font-weight: 600;
-  border: none;
-  border-radius: 12px;
-  padding: 10px 18px;
-  box-shadow: var(--shadow);
-  transition: 0.25s;
-  white-space: nowrap;
-}
-.btn-secondary.header-btn:hover {
-  background: #e9edff;
-  transform: translateY(-1px);
-}
-
 /* =================== FORM CARD =================== */
-.form-card {
+.atividade-form-card {
   background: var(--panel);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 28px;
   border: 1px solid #e5e7eb;
-  width: 1000px;                  /* mesma largura visual do header */
+  width: 1000px;
   max-width: 1200px;
-  margin: 0 auto 60px;         /* centralizado e espaçado */
+  margin: 0 auto 60px;
   box-sizing: border-box;
 }
 
@@ -134,6 +110,7 @@
   grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
+
 .field {
   display: flex;
   flex-direction: column;
@@ -148,17 +125,6 @@
   color: #d9534f;
 }
 
-/* campo Responsável centralizado dentro do card */
-.field.responsavel-field {
-  grid-column: 1 / -1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.field.responsavel-field label { align-self: center; }
-.field.responsavel-field select { width: 50%; }
-
-/* Inputs e selects */
 .field input,
 .field select,
 .field textarea {
@@ -168,27 +134,10 @@
   padding: 10px 14px;
   font-size: 0.95rem;
   color: var(--ink);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
   outline: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
   transition: 0.2s;
 }
-
-/* garante que o ícone do calendário apareça */
-.field input[type="date"] {
-  appearance: auto;
-  -webkit-appearance: textfield;
-  -moz-appearance: textfield;
-  background: #fff url('data:image/svg+xml;utf8,<svg fill="%236b7280" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-1.99.9-1.99 2L3 20a2 2 0 002 2h14a2 2 0 002-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>') no-repeat right 10px center;
-  background-size: 18px;
-  cursor: pointer;
-}
-
-/* remove padding lateral extra */
-.field input[type="date"]::-webkit-calendar-picker-indicator {
-  opacity: 0; /* o ícone nativo fica invisível, usamos o SVG acima */
-  cursor: pointer;
-}
-
 .field input:focus,
 .field select:focus,
 .field textarea:focus {
@@ -203,30 +152,6 @@
 
 .span-2 {
   grid-column: 1 / -1;
-}
-
-.actions {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-.btn-primary {
-  background: var(--navy);
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  padding: 12px 24px;
-  font-weight: 700;
-  letter-spacing: 0.4px;
-  font-size: 0.95rem;
-  box-shadow: var(--shadow);
-  cursor: pointer;
-  transition: 0.25s;
-}
-.btn-primary:hover {
-  background: var(--primary);
-  transform: translateY(-2px);
 }
 
 /* =================== ALERTAS =================== */
@@ -247,9 +172,86 @@
   border: 1px solid #bbf7d0;
 }
 
+/* =================== TABELA DE ATIVIDADES =================== */
+.table-card {
+  background: var(--panel);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 26px;
+  width: 1000px;
+  max-width: 1200px;
+  margin: 0 auto 60px;
+  border: 1px solid #e5e7eb;
+}
+
+.table-card table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.table-card th {
+  text-align: left;
+  color: var(--muted);
+  font-weight: 600;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.table-card td {
+  padding: 10px 8px;
+  color: var(--ink);
+  border-bottom: 1px solid #eaeaea;
+}
+
+.table-card tr:hover {
+  background: #f9fafb;
+}
+
+/* =================== BOTÕES =================== */
+.actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.btn-primary {
+  background: var(--navy);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.4px;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: 0.25s;
+}
+.btn-primary:hover {
+  background: var(--primary);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: #fff;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s;
+}
+.btn-secondary:hover {
+  background: #e9edff;
+  transform: translateY(-1px);
+}
+
 /* =================== RESPONSIVIDADE =================== */
-/* responsivo: em telas menores o select ocupa toda a largura */
 @media (max-width: 900px) {
   .form-grid { grid-template-columns: 1fr; }
-  .field.responsavel-field select { width: 100%; }
+  .table-card { padding: 16px; }
+  .atividade-form-card { width: 95%; }
 }

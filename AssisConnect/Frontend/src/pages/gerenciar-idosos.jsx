@@ -1,251 +1,404 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import api from "../services/api";
 import "../gerenciar-idosos.css";
-
+import Sidebar from "../components/sidebar";
+import IconUsers from "../assets/btn-users.png";
 
 export default function GerenciarIdosos() {
-    // seus estados...
-    const [loadingIdosos, setLoadingIdosos] = useState(true);
-    const [erroIdosos, setErroIdosos] = useState(false);
-    const [idosos, setIdosos] = useState([]);
-    const [usuarios, setUsuarios] = useState([]);
-    const [usuariosMap, setUsuariosMap] = useState({});
+  // === Estados principais ===
+  const [nome, setNome] = useState("");
+  const [dataNascimento, setDataNascimento] = useState("");
+  const [sexo, setSexo] = useState("");
+  const [estadoSaude, setEstadoSaude] = useState("");
+  const [observacoes, setObservacoes] = useState("");
+  const [responsavel, setResponsavel] = useState("");
 
-    const [editing, setEditing] = useState(null);
+  const [usuarios, setUsuarios] = useState([]);
+  const [idosos, setIdosos] = useState([]);
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [editForm, setEditForm] = useState({});
 
-    const [editForm, setEditForm] = useState({
-        nome: "",
-        dataNascimento: "",
-        sexo: "",
-        estadoSaude: "",
-        observacoes: "",
-        responsavelId: "",
-    });
+  const token = localStorage.getItem("token");
+  const auth = token ? { Authorization: `Bearer ${token}` } : {};
 
+  // === Carregar dados ===
+  useEffect(() => {
+    loadUsuarios();
+    loadIdosos();
+  }, []);
 
-    const token = localStorage.getItem("token");
-    const auth = token ? { Authorization: `Bearer ${token}` } : {};
-
-    useEffect(() => {
-        async function fetchData() {
-            try {
-                setLoadingIdosos(true);
-
-                const resIdosos = await api.get("/idosos", { headers: auth });
-                const resUsuarios = await api.get("/usuarios?size=1000&page=0&sort=name,asc", { headers: auth });
-
-                const idososData = Array.isArray(resIdosos.data.content) ? resIdosos.data.content : resIdosos.data;
-                const usuariosData = Array.isArray(resUsuarios.data.content) ? resUsuarios.data.content : resUsuarios.data;
-
-                setIdosos(idososData);
-                setUsuarios(usuariosData);
-
-                const map = {};
-                usuariosData.forEach((u) => (map[String(u.id)] = u.nome));
-                setUsuariosMap(map);
-
-                setLoadingIdosos(false);
-            } catch (error) {
-                console.error(error);
-                setErroIdosos(true);
-                setLoadingIdosos(false);
-            }
-        }
-        fetchData();
-    }, []);
-
-    // Funções de edição / exclusão
-    function openEdit(idoso) {
-        setEditForm(idoso);
-        setEditing(idoso.id);
-    }
-
-    async function saveEdit() {
+  const loadUsuarios = async () => {
     try {
-        const id = editForm.id;
-
-        await api.put(`/idosos/${id}`, editForm, { headers: auth });
-
-        // Atualiza o estado local com os dados editados
-        setIdosos((prev) =>
-            prev.map((i) => (i.id === id ? { ...editForm } : i))
-        );
-
-        setEditing(null);
-    } catch (error) {
-        console.error("Erro ao salvar edição:", error);
-        alert("Falha ao salvar a edição. Verifique os dados e tente novamente.");
+      const res = await api.get("/usuarios?size=1000&page=0&sort=name,asc", {
+        headers: auth,
+      });
+      const data =
+        (Array.isArray(res.data.content) && res.data.content) ||
+        (Array.isArray(res.data) && res.data) ||
+        [];
+      setUsuarios(data);
+    } catch (e) {
+      console.error(e);
+      setUsuarios([]);
     }
-}
+  };
 
-    async function handleDelete(id) {
-    if (!window.confirm("Deseja realmente remover este idoso?")) return;
+  const loadIdosos = async () => {
+    setLoading(true);
+    try {
+      const res = await api.get("/idosos", { headers: auth });
+      const data =
+        (Array.isArray(res.data.content) && res.data.content) ||
+        (Array.isArray(res.data) && res.data) ||
+        [];
+      setIdosos(data);
+    } catch (e) {
+      console.error(e);
+      setIdosos([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // === CRUD ===
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErro("");
+    setSucesso("");
+
+    if (!nome || !dataNascimento || !sexo || !estadoSaude || !responsavel) {
+      setErro("Preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    const payload = {
+      nome,
+      dataNascimento: new Date(dataNascimento).toISOString().split("T")[0],
+      sexo,
+      estadoSaude,
+      observacoes,
+      responsavelId: Number(responsavel),
+    };
 
     try {
-        await api.delete(`/idosos/${id}`, { headers: auth });
-
-        setIdosos((prev) => prev.filter((i) => i.id !== id));
-    } catch (error) {
-        console.error("Erro ao excluir idoso:", error);
-        alert("Não foi possível excluir o idoso.");
+      setLoading(true);
+      await api.post("/idosos", payload, { headers: auth });
+      setSucesso("Idoso cadastrado com sucesso!");
+      setNome("");
+      setDataNascimento("");
+      setSexo("");
+      setEstadoSaude("");
+      setObservacoes("");
+      setResponsavel("");
+      loadIdosos();
+    } catch (e) {
+      console.error(e);
+      setErro("Erro ao cadastrar idoso. Tente novamente.");
+    } finally {
+      setLoading(false);
     }
-}
+  };
 
-    return (
-        <>
-            <section className="card list-card">
-                <div className="list-header">
-                    <div className="card-title small">
-                        <div>GERENCIAMENTO DE IDOSOS</div>
-                        <p>Adicione, atualize ou remova um idoso da lista.</p>
-                    </div>
+  const handleDelete = async (id) => {
+    if (!window.confirm("Deseja realmente excluir este idoso?")) return;
+    try {
+      await api.delete(`/idosos/${id}`, { headers: auth });
+      setIdosos((prev) => prev.filter((i) => i.id !== id));
+    } catch (e) {
+      alert("Erro ao excluir idoso.");
+    }
+  };
+
+  const handleEditSave = async () => {
+    if (!editing) return;
+    try {
+      await api.put(`/idosos/${editing.id}`, editForm, { headers: auth });
+      setEditing(null);
+      loadIdosos();
+    } catch (e) {
+      alert("Erro ao salvar alterações.");
+    }
+  };
+
+  const usuariosMap = useMemo(
+    () =>
+      Object.fromEntries(
+        usuarios.map((u) => [String(u.id), u.nome || u.name || "Sem nome"])
+      ),
+    [usuarios]
+  );
+
+  // === Render ===
+  return (
+    <div className="home-root">
+      <Sidebar />
+      <div className="pg-idoso">
+        <div className="container">
+          <header className="idoso-header">
+            <div className="header-left">
+              <div className="header-icon" aria-hidden>
+                <img src={IconUsers} alt="Idosos" className="header-icon-img" />
+              </div>
+              <div>
+                <h1 className="header-title">Gerenciar Idosos</h1>
+                <p className="header-subtitle">
+                  Cadastre, edite ou remova idosos cadastrados.
+                </p>
+              </div>
+            </div>
+          </header>
+
+          {/* FORMULÁRIO DE CADASTRO */}
+          <section className="card form-card">
+            <div className="card-title">CADASTRO DE IDOSO</div>
+            {erro && <div className="alert error">{erro}</div>}
+            {sucesso && <div className="alert success">{sucesso}</div>}
+
+            <form className="form" onSubmit={handleSubmit}>
+              <div className="form-grid">
+                <div className="field">
+                  <label>Nome Completo *</label>
+                  <input
+                    type="text"
+                    value={nome}
+                    onChange={(e) => setNome(e.target.value)}
+                    placeholder="Ex.: Maria da Luz"
+                  />
                 </div>
 
-                <h2 className="list-title">
-                    IDOSOS <span>CADASTRADOS</span>
-                </h2>
-
-                <div className="idoso-list">
-                    {loadingIdosos && <div className="list-empty">Carregando...</div>}
-                    {erroIdosos && <div className="list-empty">Falha ao carregar.</div>}
-                    {!loadingIdosos && !erroIdosos && idosos.length === 0 && (
-                        <div className="list-empty">Nenhum idoso cadastrado.</div>
-                    )}
-
-                    {!loadingIdosos && !erroIdosos && idosos.length > 0 && (
-                        <ul>
-                            {idosos.map((i) => (
-                                <li key={i.id} className="idoso-item">
-                                    <div className="idoso-main">
-                                        <strong>{i.nome}</strong>
-                                        <span>
-                                            Responsável:{" "}
-                                            <b>
-                                                {usuariosMap[String(i.responsavelId)] ||
-                                                    "Responsável não encontrado"}
-                                            </b>
-                                            <br />
-                                            {i.sexo || "—"} • {i.estadoSaude || "—"}
-                                        </span>
-                                    </div>
-                                    <div className="idoso-actions">
-                                        <button
-                                            className="icon-btn"
-                                            onClick={() => openEdit(i)}
-                                            title="Editar"
-                                        >
-                                            ✎
-                                        </button>
-                                        <button
-                                            className="icon-btn"
-                                            onClick={() => handleDelete(i.id)}
-                                            title="Remover"
-                                        >
-                                            🗑
-                                        </button>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
+                <div className="field">
+                  <label>Data de Nascimento *</label>
+                  <input
+                    type="date"
+                    value={dataNascimento}
+                    onChange={(e) => setDataNascimento(e.target.value)}
+                  />
                 </div>
-            </section>
 
-            {editing && (
-                <div className="edit-overlay" onClick={() => setEditing(null)}>
-                    <div className="edit-modal" onClick={(e) => e.stopPropagation()}>
-                        <h3>Editar Idoso</h3>
-                        <div className="edit-grid">
-                            <label>
-                                Nome
-                                <input
-                                    type="text"
-                                    value={editForm.nome}
-                                    onChange={(e) =>
-                                        setEditForm({ ...editForm, nome: e.target.value })
-                                    }
-                                />
-                            </label>
-                            <label>
-                                Data Nascimento
-                                <input
-                                    type="date"
-                                    value={editForm.dataNascimento}
-                                    onChange={(e) =>
-                                        setEditForm({ ...editForm, dataNascimento: e.target.value })
-                                    }
-                                />
-                            </label>
-                            <label>
-                                Sexo
-                                <select
-                                    value={editForm.sexo}
-                                    onChange={(e) =>
-                                        setEditForm({ ...editForm, sexo: e.target.value })
-                                    }
-                                >
-                                    <option value="">Selecione</option>
-                                    <option value="F">Feminino</option>
-                                    <option value="M">Masculino</option>
-                                </select>
-                            </label>
-                            <label>
-                                Estado de Saúde
-                                <input
-                                    type="text"
-                                    value={editForm.estadoSaude}
-                                    onChange={(e) =>
-                                        setEditForm({ ...editForm, estadoSaude: e.target.value })
-                                    }
-                                    list="estadoSaudeSug2"
-                                />
-                                <datalist id="estadoSaudeSug2">
-                                    <option value="ESTAVEL" />
-                                    <option value="OBSERVACAO" />
-                                    <option value="GRAVE" />
-                                </datalist>
-                            </label>
-                            <label className="span-2">
-                                Observações
-                                <textarea
-                                    rows={4}
-                                    value={editForm.observacoes}
-                                    onChange={(e) =>
-                                        setEditForm({ ...editForm, observacoes: e.target.value })
-                                    }
-                                />
-                            </label>
-                            <label>
-                                Responsável
-                                <select
-                                    value={String(editForm.responsavelId || "")}
-                                    onChange={(e) =>
-                                        setEditForm({ ...editForm, responsavelId: e.target.value })
-                                    }
-                                >
-                                    <option value="">Selecione</option>
-                                    {usuarios.map((u) => (
-                                        <option key={String(u.id)} value={String(u.id)}>
-                                            {u.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </label>
-                        </div>
-                        <div className="edit-actions">
-                            <button
-                                className="btn-secondary"
-                                onClick={() => setEditing(null)}
-                            >
-                                Cancelar
-                            </button>
-                            <button className="btn-primary" onClick={saveEdit}>
-                                Salvar
-                            </button>
-                        </div>
-                    </div>
+                <div className="field">
+                  <label>Sexo *</label>
+                  <select
+                    value={sexo}
+                    onChange={(e) => setSexo(e.target.value)}
+                  >
+                    <option value="">Selecione</option>
+                    <option value="F">Feminino</option>
+                    <option value="M">Masculino</option>
+                  </select>
                 </div>
+
+                <div className="field">
+                  <label>Estado de Saúde *</label>
+                  <select
+                    value={estadoSaude}
+                    onChange={(e) => setEstadoSaude(e.target.value)}
+                  >
+                    <option value="">Selecione</option>
+                    <option value="ESTAVEL">Estável</option>
+                    <option value="OBSERVACAO">Em observação</option>
+                    <option value="GRAVE">Grave</option>
+                  </select>
+                </div>
+
+                <div className="field span-2">
+                  <label>Observações</label>
+                  <textarea
+                    rows={3}
+                    value={observacoes}
+                    onChange={(e) => setObservacoes(e.target.value)}
+                    placeholder="Alergias, medicações, observações clínicas..."
+                  />
+                </div>
+
+                <div className="field">
+                  <label>Responsável *</label>
+                  <select
+                    value={String(responsavel || "")}
+                    onChange={(e) => setResponsavel(e.target.value)}
+                  >
+                    <option value="">Selecione</option>
+                    {usuarios.map((u) => (
+                      <option key={u.id} value={u.id}>
+                        {u.nome || u.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="actions">
+                <button type="submit" className="btn-primary" disabled={loading}>
+                  {loading ? "Salvando..." : "Cadastrar"}
+                </button>
+              </div>
+            </form>
+          </section>
+
+          {/* LISTAGEM */}
+          <section className="card list-card">
+            <div className="card-title">IDOSOS CADASTRADOS</div>
+
+            {loading && <div className="list-empty">Carregando...</div>}
+            {!loading && idosos.length === 0 && (
+              <div className="list-empty">Nenhum idoso cadastrado.</div>
             )}
-        </>
-    );
+
+            {!loading && idosos.length > 0 && (
+              <ul className="idoso-list">
+                {idosos.map((i) => (
+                  <li key={i.id} className="idoso-item">
+                    <div className="idoso-main">
+                      <strong>{i.nome}</strong>
+                      <span>
+                        Responsável:{" "}
+                        <b>
+                          {usuariosMap[String(i.responsavelId)] ||
+                            "Não informado"}
+                        </b>
+                        <br />
+                        {i.sexo || "—"} • {i.estadoSaude || "—"}
+                      </span>
+                    </div>
+                    <div className="idoso-actions">
+                      <button
+                        className="icon-btn"
+                        onClick={() => {
+                          setEditing(i);
+                          setEditForm(i);
+                        }}
+                      >
+                        ✎
+                      </button>
+                      <button
+                        className="icon-btn"
+                        onClick={() => handleDelete(i.id)}
+                      >
+                        🗑
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          {/* MODAL DE EDIÇÃO */}
+          {editing && (
+            <div className="edit-overlay" onClick={() => setEditing(null)}>
+              <div
+                className="edit-modal"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h3>Editar Idoso</h3>
+                <div className="edit-grid">
+                  <label>
+                    Nome
+                    <input
+                      type="text"
+                      value={editForm.nome}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, nome: e.target.value })
+                      }
+                    />
+                  </label>
+                  <label>
+                    Data Nascimento
+                    <input
+                      type="date"
+                      value={editForm.dataNascimento}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          dataNascimento: e.target.value,
+                        })
+                      }
+                    />
+                  </label>
+                  <label>
+                    Sexo
+                    <select
+                      value={editForm.sexo}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, sexo: e.target.value })
+                      }
+                    >
+                      <option value="">Selecione</option>
+                      <option value="F">Feminino</option>
+                      <option value="M">Masculino</option>
+                    </select>
+                  </label>
+                  <label>
+                    Estado de Saúde
+                    <input
+                      type="text"
+                      value={editForm.estadoSaude}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          estadoSaude: e.target.value,
+                        })
+                      }
+                      list="estadoSaudeSug"
+                    />
+                    <datalist id="estadoSaudeSug">
+                      <option value="ESTAVEL" />
+                      <option value="OBSERVACAO" />
+                      <option value="GRAVE" />
+                    </datalist>
+                  </label>
+                  <label className="span-2">
+                    Observações
+                    <textarea
+                      rows={4}
+                      value={editForm.observacoes}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          observacoes: e.target.value,
+                        })
+                      }
+                    />
+                  </label>
+                  <label>
+                    Responsável
+                    <select
+                      value={String(editForm.responsavelId || "")}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          responsavelId: e.target.value,
+                        })
+                      }
+                    >
+                      <option value="">Selecione</option>
+                      {usuarios.map((u) => (
+                        <option key={String(u.id)} value={String(u.id)}>
+                          {u.nome || u.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+
+                <div className="edit-actions">
+                  <button
+                    className="btn-secondary"
+                    onClick={() => setEditing(null)}
+                  >
+                    Cancelar
+                  </button>
+                  <button className="btn-primary" onClick={handleEditSave}>
+                    Salvar
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
