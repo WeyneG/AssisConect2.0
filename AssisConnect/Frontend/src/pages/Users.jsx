@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import "./users.css";
 
+/* === helpers ============================================================= */
 function getRoleFromToken() {
   try {
     const token = localStorage.getItem("token");
@@ -29,24 +31,25 @@ function roleMeta(roleRaw) {
 function RoleBadge({ role }) {
   const { label, color } = roleMeta(role);
   return (
-    <span
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        padding: "2px 8px",
-        borderRadius: 999,
-        fontSize: 12,
-        fontWeight: 700,
-        background: color,
-        color: "#fff",
-        letterSpacing: 0.4,
-      }}
-    >
+    <span className="role-badge" style={{ background: color }}>
       {label}
     </span>
   );
 }
 
+/* === ui bits ============================================================= */
+function ShimmerRow() {
+  return (
+    <tr className="shimmer-row">
+      <td><span className="shimmer block w-56" /></td>
+      <td><span className="shimmer block w-64" /></td>
+      <td><span className="shimmer chip" /></td>
+      <td><span className="shimmer block w-40" /></td>
+    </tr>
+  );
+}
+
+/* === page ================================================================ */
 export default function Users() {
   const { user } = useAuth();
   const roleFromToken = useMemo(() => getRoleFromToken(), []);
@@ -125,118 +128,190 @@ export default function Users() {
       });
   }
 
+  function clearFilters() {
+    setNome("");
+    setEmail("");
+    setRole("");
+    setPage(0);
+  }
+
   if (effectiveRole !== "ADMIN") {
     return (
-      <div style={{ maxWidth: 900, margin: "0 auto", padding: 24 }}>
-        <h1>Usuários</h1>
-        <p style={{ color: "crimson" }}>Você não tem permissão para ver esta página.</p>
+      <div className="users-container">
+        <div className="page-hero">
+          <div className="page-hero__icon">👤</div>
+          <div>
+            <h1 className="page-hero__title">Usuários</h1>
+            <p className="page-hero__subtitle">Você não tem permissão para acessar esta área.</p>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container" style={{ maxWidth: 900, margin: "0 auto", padding: 24 }}>
-      <h1 style={{ marginBottom: 16 }}>Usuários</h1>
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr 120px",
-          gap: 8,
-          marginBottom: 12,
-        }}
-      >
-        <input placeholder="Buscar por nome" value={nome} onChange={(e) => setNome(e.target.value)} />
-        <input placeholder="Buscar por email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <select value={role} onChange={(e) => setRole(e.target.value)}>
-          <option value="">Todas as roles</option>
-          <option value="ADMIN">ADMIN</option>
-          <option value="FUNCIONARIO">FUNCIONARIO</option>
-          <option value="FAMILIAR">FAMILIAR</option>
-        </select>
-        <select
-          value={size}
-          onChange={(e) => {
-            setSize(parseInt(e.target.value, 10));
-            setPage(0);
-          }}
-        >
-          <option value={5}>5</option>
-          <option value={10}>10</option>
-          <option value={20}>20</option>
-        </select>
-      </div>
-
-      {loading ? (
-        <p>Carregando…</p>
-      ) : error ? (
-        <p style={{ color: "red" }}>{error}</p>
-      ) : (
-        <div style={{ overflowX: "auto" }}>
-          <table width="100%" cellPadding={8} style={{ borderCollapse: "collapse" }}>
-            <thead>
-              <tr>
-                <th align="left">Nome</th>
-                <th align="left">Email</th>
-                <th align="left">Role</th>
-                <th align="left">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r) => (
-                <tr key={r.id}>
-                  <td>{r.name}</td>
-                  <td>{r.email}</td>
-                  <td><RoleBadge role={r.role} /></td>
-                  <td>
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <button onClick={() => startEdit(r)}>Editar</button>
-                      <button onClick={() => onDelete(r)} style={{ color: "red" }}>Excluir</button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {rows.length === 0 && (
-                <tr>
-                  <td colSpan={4} align="center">Nenhum resultado</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+    <div className="users-container">
+      {/* HERO / TÍTULO */}
+      <div className="page-hero">
+        <div className="page-hero__icon">👥</div>
+        <div className="page-hero__content">
+          <h1 className="page-hero__title">Gerenciamento de Usuários</h1>
+          <p className="page-hero__subtitle">Controle de acesso e perfis do sistema.</p>
         </div>
-      )}
-
-      <div style={{ display: "flex", gap: 8, marginTop: 12, alignItems: "center" }}>
-        <button disabled={page === 0} onClick={() => setPage((p) => Math.max(0, p - 1))}>Anterior</button>
-        <span>Página {page + 1} de {totalPages}</span>
-        <button disabled={page + 1 >= totalPages} onClick={() => setPage((p) => p + 1)}>Próxima</button>
+        <div className="page-hero__right">
+          <div className="stat-pill">
+            <span className="stat-pill__label">Total</span>
+            <span className="stat-pill__value">{total}</span>
+          </div>
+          <button className="btn ghost" onClick={loadData} title="Atualizar lista">
+            ↻ Atualizar
+          </button>
+        </div>
       </div>
 
+      {/* GRID PRINCIPAL */}
+      <div className="page-grid">
+        {/* COLUNA ESQUERDA */}
+        <div className="col-main">
+          {/* FILTROS */}
+          <div className="card filters-card">
+            <div className="filters-grid">
+              <input className="input" placeholder="Buscar por nome" value={nome} onChange={(e) => setNome(e.target.value)} />
+              <input className="input" placeholder="Buscar por email" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <select className="input" value={role} onChange={(e) => setRole(e.target.value)}>
+                <option value="">Todas as roles</option>
+                <option value="ADMIN">ADMIN</option>
+                <option value="FUNCIONARIO">FUNCIONARIO</option>
+                <option value="FAMILIAR">FAMILIAR</option>
+              </select>
+
+              <select
+                className="input"
+                value={size}
+                onChange={(e) => {
+                  setSize(parseInt(e.target.value, 10));
+                  setPage(0);
+                }}
+              >
+                <option value={5}>5 por página</option>
+                <option value={10}>10 por página</option>
+                <option value={20}>20 por página</option>
+              </select>
+            </div>
+
+            <div className="filters-actions">
+              <button className="btn ghost" onClick={() => setPage(0)}>Aplicar</button>
+              <button className="btn subtle" onClick={clearFilters}>Limpar</button>
+            </div>
+          </div>
+
+          {/* TABELA */}
+          <div className="card table-card">
+            <div className="table-wrap">
+              <table className="users-table" cellPadding={0} cellSpacing={0}>
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {loading && (
+                    <>
+                      <ShimmerRow /><ShimmerRow /><ShimmerRow /><ShimmerRow /><ShimmerRow />
+                    </>
+                  )}
+
+                  {!loading && rows.map((r) => (
+                    <tr key={r.id}>
+                      <td className="col-name">
+                        <div className="name-stack">
+                          <span className="avatar-seed" aria-hidden>{(r?.name || "?")[0]?.toUpperCase()}</span>
+                          <div>
+                            <div className="name">{r.name}</div>
+                            <div className="muted small">ID: {r.id}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>{r.email}</td>
+                      <td><RoleBadge role={r.role} /></td>
+                      <td>
+                        <div className="actions">
+                          <button className="btn subtle" onClick={() => startEdit(r)}>Editar</button>
+                          <button className="btn danger outline" onClick={() => onDelete(r)}>Excluir</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+
+                  {!loading && rows.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="empty">
+                        Nenhum resultado encontrado.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {/* PAGINAÇÃO */}
+            <div className="pagination">
+              <button className="btn subtle" disabled={page === 0} onClick={() => setPage((p) => Math.max(0, p - 1))}>← Anterior</button>
+              <span className="page-info">Página {page + 1} de {totalPages}</span>
+              <button className="btn subtle" disabled={page + 1 >= totalPages} onClick={() => setPage((p) => p + 1)}>Próxima →</button>
+            </div>
+          </div>
+        </div>
+
+        <aside className="col-side">
+          <div className="card">
+            <h3 className="card-title">Distribuição de Roles</h3>
+            <div className="legend">
+              <span className="dot" style={{ background: "#e74c3c" }} /> Admin
+            </div>
+            <div className="legend">
+              <span className="dot" style={{ background: "#3498db" }} /> Funcionário
+            </div>
+            <div className="legend">
+              <span className="dot" style={{ background: "#2ecc71" }} /> Familiar
+            </div>
+            <p className="muted small mt-8">
+              Use os filtros ao lado para localizar usuários rapidamente.
+            </p>
+          </div>
+
+          <div className="card">
+            <h3 className="card-title">Ações rápidas</h3>
+            <div className="quick-actions">
+              <button className="btn ghost w-full" onClick={loadData}>↻ Recarregar lista</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      {/* MODAL */}
       {editingUser && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.6)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <div style={{ background: "#fff", padding: 24, borderRadius: 8, width: 400 }}>
+        <div className="modal-overlay" role="dialog" aria-modal="true">
+          <div className="modal">
             <h2>Editar Usuário</h2>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div className="modal-body">
               <input
+                className="input"
                 placeholder="Nome"
                 value={editData.name}
                 onChange={(e) => setEditData({ ...editData, name: e.target.value })}
               />
               <input
+                className="input"
                 placeholder="Email"
                 value={editData.email}
                 onChange={(e) => setEditData({ ...editData, email: e.target.value })}
               />
               <select
+                className="input"
                 value={editData.role}
                 onChange={(e) => setEditData({ ...editData, role: e.target.value })}
               >
@@ -245,9 +320,9 @@ export default function Users() {
                 <option value="FAMILIAR">FAMILIAR</option>
               </select>
             </div>
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 16 }}>
-              <button onClick={() => setEditingUser(null)}>Cancelar</button>
-              <button onClick={saveEdit} style={{ background: "#202C4B", color: "#fff" }}>Salvar</button>
+            <div className="modal-actions">
+              <button className="btn subtle" onClick={() => setEditingUser(null)}>Cancelar</button>
+              <button className="btn primary" onClick={saveEdit}>Salvar</button>
             </div>
           </div>
         </div>
