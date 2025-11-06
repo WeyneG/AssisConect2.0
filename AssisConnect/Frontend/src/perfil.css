@@ -2,7 +2,7 @@
   background: var(--bg);
   min-height: 100vh;
   width: 100vw;
-  margin-left: 85px; /* espaço do sidebar */
+  margin-left: 85px; /* espaço da sidebar */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -15,7 +15,7 @@
 }
 
 /* HEADER */
-.perfil-header {
+.pg-perfil .perfil-header {
   background: linear-gradient(90deg, var(--primary) 0%, #7ea3ff 100%);
   color: #fff;
   border-radius: 16px;
@@ -29,13 +29,13 @@
   justify-content: space-between;
 }
 
-.header-left {
+.pg-perfil .header-left {
   display: flex;
   align-items: center;
   gap: 18px;
 }
 
-.header-icon {
+.pg-perfil .header-icon {
   width: 60px;
   height: 60px;
   border-radius: 50%;
@@ -44,23 +44,23 @@
   place-items: center;
 }
 
-.header-icon img {
+.pg-perfil .header-icon img {
   width: 28px;
   filter: brightness(0) invert(1);
 }
 
-.header-title {
+.pg-perfil .header-title {
   font-weight: 700;
   font-size: 1.6rem;
 }
 
-.header-subtitle {
+.pg-perfil .header-subtitle {
   font-size: 0.95rem;
   opacity: 0.9;
 }
 
 /* CARD */
-.card {
+.pg-perfil .card {
   background: var(--panel);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
@@ -71,7 +71,7 @@
   border: 1px solid #e5e7eb;
 }
 
-.card-title {
+.pg-perfil .card-title {
   background: var(--navy);
   color: #fff;
   border-radius: 10px;
@@ -81,32 +81,32 @@
   margin-bottom: 18px;
 }
 
-.perfil-info {
+.pg-perfil .perfil-info {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
-.perfil-row {
+.pg-perfil .perfil-row {
   display: flex;
   justify-content: space-between;
   border-bottom: 1px solid #e5e7eb;
   padding: 10px 4px;
 }
 
-.perfil-label {
+.pg-perfil .perfil-label {
   color: var(--muted);
   font-weight: 600;
 }
 
-.perfil-value {
+.pg-perfil .perfil-value {
   color: var(--ink);
   font-weight: 500;
 }
 
 /* Responsivo */
 @media (max-width: 900px) {
-  .card {
+  .pg-perfil .card {
     width: 95%;
     padding: 20px;
   }
