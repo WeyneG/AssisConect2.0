@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import api from "../services/api";
 import "../gerenciar-cardapio.css";
 import Sidebar from "../components/sidebar";
-import IconFood from "../assets/btn-cardapio.png"; // crie ou use qualquer ícone
+import IconFood from "../assets/btn-cardapio.png";
 
 function formatISOToBR(iso) {
   if (!iso) return "";
@@ -20,6 +20,9 @@ export default function GerenciarCardapio() {
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(false);
 
+  
+  const [editando, setEditando] = useState(null);
+
   useEffect(() => {
     carregarCardapios();
   }, []);
@@ -28,11 +31,14 @@ export default function GerenciarCardapio() {
     setLoading(true);
     try {
       const res = await api.get("/api/cardapios");
-      const lista = Array.isArray(res.data)
-        ? res.data
-        : Array.isArray(res.data.content)
-        ? res.data.content
-        : [];
+
+      const lista =
+        Array.isArray(res.data)
+          ? res.data
+          : Array.isArray(res.data.content)
+          ? res.data.content
+          : [];
+
       setCardapios(lista);
     } catch (e) {
       setErro("Erro ao carregar cardápios.");
@@ -54,16 +60,18 @@ export default function GerenciarCardapio() {
 
     const payload = {
       data: new Date(data).toISOString().split("T")[0],
-      cafe,
-      almoco,
-      jantar,
+      cafeDaManha: cafe,
+      almoco: almoco,
+      jantar: jantar,
     };
 
     try {
       setLoading(true);
       const { data: criado } = await api.post("/api/cardapios", payload);
+
       setCardapios((prev) => [...prev, criado]);
       setSucesso("Cardápio salvo com sucesso!");
+
       setData("");
       setCafe("");
       setAlmoco("");
@@ -78,6 +86,7 @@ export default function GerenciarCardapio() {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Deseja remover este cardápio?")) return;
+
     try {
       await api.delete(`/api/cardapios/${id}`);
       setCardapios((prev) => prev.filter((c) => c.id !== id));
@@ -86,9 +95,100 @@ export default function GerenciarCardapio() {
     }
   };
 
+
+  const salvarEdicao = async () => {
+    if (!editando) return;
+
+    const payload = {
+      data: new Date(editando.data).toISOString().split("T")[0],
+      cafeDaManha: editando.cafeDaManha,
+      almoco: editando.almoco,
+      jantar: editando.jantar,
+    };
+
+    try {
+      const res = await api.put(`/api/cardapios/${editando.id}`, payload);
+
+      setCardapios((prev) =>
+        prev.map((c) => (c.id === editando.id ? res.data : c))
+      );
+
+      setSucesso("Cardápio atualizado com sucesso!");
+      setEditando(null);
+    } catch (e) {
+      console.error(e);
+      setErro("Erro ao atualizar o cardápio.");
+    }
+  };
+
   return (
     <div className="home-root">
       <Sidebar />
+
+      {}
+      {editando && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h2>Editar Cardápio</h2>
+
+            <div className="modal-field">
+              <label>Data</label>
+              <input
+                type="date"
+                value={editando.data}
+                onChange={(e) =>
+                  setEditando({ ...editando, data: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="modal-field">
+              <label>Café da Manhã</label>
+              <textarea
+                rows={2}
+                value={editando.cafeDaManha}
+                onChange={(e) =>
+                  setEditando({ ...editando, cafeDaManha: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="modal-field">
+              <label>Almoço</label>
+              <textarea
+                rows={2}
+                value={editando.almoco}
+                onChange={(e) =>
+                  setEditando({ ...editando, almoco: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="modal-field">
+              <label>Jantar</label>
+              <textarea
+                rows={2}
+                value={editando.jantar}
+                onChange={(e) =>
+                  setEditando({ ...editando, jantar: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="modal-actions">
+              <button className="btn-primary" onClick={salvarEdicao}>
+                Salvar alterações
+              </button>
+              <button
+                className="btn-secondary"
+                onClick={() => setEditando(null)}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="pg-cardapio">
         <div className="container">
@@ -190,6 +290,7 @@ export default function GerenciarCardapio() {
                     <th>Ações</th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {cardapios.length === 0 && (
                     <tr>
@@ -205,13 +306,21 @@ export default function GerenciarCardapio() {
                     .map((c) => (
                       <tr key={c.id}>
                         <td>{formatISOToBR(c.data)}</td>
-                        <td>{c.cafe}</td>
+                        <td>{c.cafeDaManha}</td>
                         <td>{c.almoco}</td>
                         <td>{c.jantar}</td>
                         <td>
                           <button
                             className="btn-secondary"
+                            onClick={() => setEditando(c)}
+                          >
+                            Editar
+                          </button>
+
+                          <button
+                            className="btn-secondary"
                             onClick={() => handleDelete(c.id)}
+                            style={{ marginLeft: "6px" }}
                           >
                             Excluir
                           </button>
