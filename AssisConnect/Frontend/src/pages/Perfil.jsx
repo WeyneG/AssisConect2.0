@@ -1,10 +1,12 @@
+
+
 import React, { useEffect, useMemo, useState } from "react";
 import Sidebar from "../components/sidebar";
 import "../perfil.css";
 import api from "../services/api";
 import IconPerfil from "../assets/btn-perfil.png";
 
-// Decodifica o token JWT local para pegar infos básicas
+
 function decodeToken(token) {
   try {
     const base64 = token.split(".")[1];
@@ -37,12 +39,15 @@ export default function Perfil() {
             role: (res.data.role || "").toString().toUpperCase(),
           });
         }
-      } catch {
-        // se a rota /usuarios/me não existir, segue com os dados do token
+      } catch (e) {
+        console.error("Erro ao carregar /usuarios/me", e);
       }
     }
-    loadUser();
-  }, []);
+
+    if (token) {
+      loadUser();
+    }
+  }, [token]);
 
   return (
     <div className="home-root">

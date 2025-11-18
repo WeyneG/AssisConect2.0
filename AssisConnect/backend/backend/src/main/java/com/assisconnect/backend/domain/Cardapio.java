@@ -1,8 +1,14 @@
 package com.assisconnect.backend.domain;
 
-import jakarta.persistence.*;
-import lombok.Data;
 import java.time.LocalDate;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.Data;
 
 @Data
 @Entity
@@ -13,6 +19,7 @@ public class Cardapio {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+   
     private LocalDate data;
 
     @Column(name = "cafe_da_manha", columnDefinition = "TEXT")
@@ -23,5 +30,4 @@ public class Cardapio {
 
     @Column(columnDefinition = "TEXT")
     private String jantar;
-    
 }

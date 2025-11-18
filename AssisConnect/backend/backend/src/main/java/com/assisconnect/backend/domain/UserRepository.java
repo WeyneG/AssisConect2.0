@@ -9,9 +9,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface UserRepository extends JpaRepository<User, Long> {
+
     Optional<User> findByEmail(String email);
+
     boolean existsByEmail(String email);
-     @Query("""
+
+    @Query("""
         SELECT u FROM User u
         WHERE LOWER(u.name)  LIKE LOWER(CONCAT('%', :nome,  '%'))
           AND LOWER(u.email) LIKE LOWER(CONCAT('%', :email, '%'))
@@ -21,5 +24,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
                       @Param("email") String email,
                       @Param("role") String role,
                       Pageable pageable);
-
 }

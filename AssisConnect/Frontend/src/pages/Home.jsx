@@ -47,23 +47,49 @@ export default function Home() {
   const [aniversariantes, setAniversariantes] = useState([]);
   const [loadingData, setLoadingData] = useState(true);
 
+
+  const [menuHoje, setMenuHoje] = useState({
+    cafe: "",
+    almoco: "",
+    jantar: "",
+  });
+  const [menuLoading, setMenuLoading] = useState(true);
+
   useEffect(() => {
     async function fetchDashboardData() {
       setLoadingData(true);
-      try {
-        const [countResponse, aniversariantesResponse] = await Promise.all([
-          dashboardService.getIdososCount(),
-          dashboardService.getAniversariantes(),
-        ]);
+      setMenuLoading(true);
 
+      try {
+        const [countResponse, aniversariantesResponse, cardapioHojeResponse] =
+          await Promise.all([
+            dashboardService.getIdososCount(),
+            dashboardService.getAniversariantes(),
+            dashboardService.getCardapioHoje(), // novo endpoint
+          ]);
+
+     
         setIdososCount(countResponse.data);
         setAniversariantes(aniversariantesResponse.data);
+
+        
+        const cardapio = cardapioHojeResponse?.data || null;
+        if (cardapio) {
+          setMenuHoje({
+            cafe: cardapio.cafeDaManha || "",
+            almoco: cardapio.almoco || "",
+            jantar: cardapio.jantar || "",
+          });
+        } else {
+          setMenuHoje({ cafe: "", almoco: "", jantar: "" });
+        }
       } catch (err) {
         console.error("Erro ao carregar dados do Dashboard:", err);
         setMsg(err.userMessage || "Erro ao carregar dados do painel.");
         setIdososCount("ERRO");
       } finally {
         setLoadingData(false);
+        setMenuLoading(false);
       }
     }
 
@@ -117,25 +143,33 @@ export default function Home() {
               <li className="menu-item">
                 <div className="menu-title">Café da manhã</div>
                 <div className="menu-desc">
-                  Pão integral com ovos e queijo branco.
+                  {menuLoading
+                    ? "Carregando..."
+                    : menuHoje.cafe || "Nenhum cardápio cadastrado para hoje."}
                 </div>
               </li>
               <li className="menu-item">
                 <div className="menu-title">Almoço</div>
                 <div className="menu-desc">
-                  Arroz, feijão, frango grelhado e salada.
+                  {menuLoading
+                    ? "Carregando..."
+                    : menuHoje.almoco ||
+                      "Nenhum cardápio cadastrado para hoje."}
                 </div>
               </li>
               <li className="menu-item">
                 <div className="menu-title">Jantar</div>
                 <div className="menu-desc">
-                  Sopa de legumes com torradas de pão.
+                  {menuLoading
+                    ? "Carregando..."
+                    : menuHoje.jantar ||
+                      "Nenhum cardápio cadastrado para hoje."}
                 </div>
               </li>
             </ul>
           </section>
 
-          {/* Avisos */}
+          {}
           <section className="card card-block card-notices">
             <header className="block-header">
               <h2 className="block-title">Avisos</h2>
@@ -196,7 +230,9 @@ export default function Home() {
                   )}
                 </>
               ) : (
-                <div className="birthday-name">Nenhum aniversariante hoje!</div>
+                <div className="birthday-name">
+                  Nenhum aniversariante hoje!
+                </div>
               )}
             </div>
           </section>

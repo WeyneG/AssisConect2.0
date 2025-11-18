@@ -5,11 +5,13 @@ const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
+
 
 api.interceptors.response.use(
   (res) => res,
@@ -29,15 +31,16 @@ api.interceptors.response.use(
     return Promise.reject(err);
   }
 );
+
+
 export const dashboardService = {
-    
-    getIdososCount: () => {
-        return api.get('/idosos/count'); 
-    },
-    getAniversariantes: () => {
-        return api.get('/idosos/aniversariantes');
-    }
-   
+  getIdososCount: () => api.get("/idosos/count"),
+
+  getAniversariantes: () => api.get("/idosos/aniversariantes"),
+
+
+  getCardapioHoje: () => api.get("/api/cardapios/hoje"),
 };
 
-export default api; 
+
+export default api;

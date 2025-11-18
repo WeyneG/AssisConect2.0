@@ -1,8 +1,11 @@
 package com.assisconnect.backend.api;
 
+import java.util.NoSuchElementException;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +22,7 @@ import com.assisconnect.backend.service.UserService;
 @RestController
 @RequestMapping
 public class UsersController {
+
     private final UserRepository repo;
     private final UserService service;
 
@@ -27,7 +31,26 @@ public class UsersController {
         this.service = service;
     }
 
+   
+    @GetMapping("/usuarios/me")
+    public ResponseEntity<UserResponse> me(Authentication authentication) {
+      
+        String email = authentication.getName();
+
+        User u = repo.findByEmail(email)
+                     .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado"));
+
+        UserResponse dto = new UserResponse(
+            u.getId(),
+            u.getName(),
+            u.getEmail(),
+            u.getRole()
+        );
+
+        return ResponseEntity.ok(dto);
+    }
     
+
     @GetMapping("/usuarios")
     public ResponseEntity<Page<UserResponse>> list(
         @RequestParam(defaultValue = "") String nome,
@@ -42,17 +65,17 @@ public class UsersController {
         return ResponseEntity.ok(mapped);
     }
 
-    
     @PutMapping("/usuarios/{id}")
     public ResponseEntity<UserResponse> update(
         @PathVariable Long id,
         @RequestBody UpdateUserRequest req
     ) {
         var u = service.updateUser(id, req);
-        return ResponseEntity.ok(new UserResponse(u.getId(), u.getName(), u.getEmail(), u.getRole()));
+        return ResponseEntity.ok(
+            new UserResponse(u.getId(), u.getName(), u.getEmail(), u.getRole())
+        );
     }
 
-  
     @DeleteMapping("/usuarios/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.deleteUser(id);

@@ -14,11 +14,19 @@ public class IdosoResponse {
     private EstadoSaude estadoSaude;
     private String observacoes;
     private Long responsavelId;
+    private String responsavelNome;  
     private LocalDateTime criadoEm;
 
-    public IdosoResponse(Long id, String nome, LocalDate dataNascimento, Sexo sexo,
-            EstadoSaude estadoSaude, String observacoes,
-            Long responsavelId, LocalDateTime criadoEm) {
+    public IdosoResponse(
+            Long id,
+            String nome,
+            LocalDate dataNascimento,
+            Sexo sexo,
+            EstadoSaude estadoSaude,
+            String observacoes,
+            Long responsavelId,
+            String responsavelNome,  
+            LocalDateTime criadoEm) {
         this.id = id;
         this.nome = nome;
         this.dataNascimento = dataNascimento;
@@ -26,6 +34,7 @@ public class IdosoResponse {
         this.estadoSaude = estadoSaude;
         this.observacoes = observacoes;
         this.responsavelId = responsavelId;
+        this.responsavelNome = responsavelNome; 
         this.criadoEm = criadoEm;
     }
 
@@ -55,6 +64,10 @@ public class IdosoResponse {
 
     public Long getResponsavelId() {
         return responsavelId;
+    }
+
+    public String getResponsavelNome() {          
+        return responsavelNome;
     }
 
     public LocalDateTime getCriadoEm() {
@@ -87,6 +100,10 @@ public class IdosoResponse {
 
     public void setResponsavelId(Long responsavelId) {
         this.responsavelId = responsavelId;
+    }
+
+    public void setResponsavelNome(String responsavelNome) { 
+        this.responsavelNome = responsavelNome;
     }
 
     public void setCriadoEm(LocalDateTime criadoEm) {
