@@ -1,11 +1,12 @@
 package com.assisconnect.backend.service;
 
-
-
 import com.assisconnect.backend.domain.Cardapio;
 import com.assisconnect.backend.domain.CardapioRepository;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CardapioService {
@@ -42,5 +43,10 @@ public class CardapioService {
 
     public void deletar(Long id) {
         repository.deleteById(id);
+    }
+
+    public Optional<Cardapio> buscarCardapioDeHoje() {
+        LocalDate hoje = LocalDate.now();
+        return repository.findTopByDataOrderByIdDesc(hoje);
     }
 }

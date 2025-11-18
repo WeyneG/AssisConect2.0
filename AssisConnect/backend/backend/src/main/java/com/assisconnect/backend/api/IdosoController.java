@@ -31,6 +31,9 @@ public class IdosoController {
     private IdosoService idosoService;
 
     private IdosoResponse toResponse(Idoso i) {
+        Long responsavelId   = i.getResponsavel() != null ? i.getResponsavel().getId()   : null;
+        String responsavelNm = i.getResponsavel() != null ? i.getResponsavel().getName() : "Não informado";
+
         return new IdosoResponse(
             i.getId(),
             i.getNome(),
@@ -38,7 +41,8 @@ public class IdosoController {
             i.getSexo(),
             i.getEstadoSaude(),
             i.getObservacoes(),
-            i.getResponsavel() != null ? i.getResponsavel().getId() : null,
+            responsavelId,
+            responsavelNm,     
             i.getCriadoEm()
         );
     }
@@ -49,8 +53,8 @@ public class IdosoController {
             Idoso idoso = new Idoso();
             idoso.setNome(dto.getNome());
             idoso.setDataNascimento(dto.getDataNascimento());
-            idoso.setSexo(dto.getSexo());                 
-            idoso.setEstadoSaude(dto.getEstadoSaude());   
+            idoso.setSexo(dto.getSexo());
+            idoso.setEstadoSaude(dto.getEstadoSaude());
             idoso.setObservacoes(dto.getObservacoes());
 
             User responsavel = new User();
@@ -67,7 +71,6 @@ public class IdosoController {
         }
     }
 
-    
     @GetMapping
     public ResponseEntity<Page<IdosoResponse>> listar(Pageable pageable) {
         Page<Idoso> page = idosoService.listar(pageable);
@@ -75,7 +78,6 @@ public class IdosoController {
         return ResponseEntity.ok(mapped);
     }
 
-    
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizar(@PathVariable Long id, @Validated @RequestBody IdosoRequest dto) {
         try {
@@ -99,7 +101,6 @@ public class IdosoController {
         }
     }
 
-    
     @DeleteMapping("/{id}")
     public ResponseEntity<?> remover(@PathVariable Long id) {
         try {

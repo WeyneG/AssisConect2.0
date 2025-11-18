@@ -1,9 +1,8 @@
 package com.assisconnect.backend.api;
 
-
-
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,9 +27,18 @@ public class CardapioController {
         this.service = service;
     }
 
+    
     @GetMapping
     public List<Cardapio> listar() {
         return service.listarTodos();
+    }
+
+   
+    @GetMapping("/hoje")
+    public ResponseEntity<Cardapio> getCardapioDeHoje() {
+        return service.buscarCardapioDeHoje()
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.noContent().build());
     }
 
     @PostMapping

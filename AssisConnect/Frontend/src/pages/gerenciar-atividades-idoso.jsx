@@ -1,11 +1,11 @@
-// src/pages/gerenciar-atividades-idoso.jsx
+
 import React, { useEffect, useMemo, useState } from "react";
 import api from "../services/api";
 import "../gerenciar-atividades-idoso.css";
 import Sidebar from "../components/sidebar";
-import IconActivity from "../assets/btn-relatorio.png"; // ajuste o caminho se o arquivo estiver em outro lugar
+import IconActivity from "../assets/btn-relatorio.png";
 
-// Utils
+
 function timeToMinutes(hhmm) {
   if (!hhmm) return 0;
   const [h, m] = hhmm.split(":").map(Number);
@@ -73,6 +73,9 @@ export default function GerenciarAtividadesIdoso() {
   const [observacoes, setObservacoes] = useState("");
   const [responsavelId, setResponsavelId] = useState("");
 
+  // edição
+  const [editingId, setEditingId] = useState(null);
+
   const [touched, setTouched] = useState({});
   const markTouched = (field) => setTouched((t) => ({ ...t, [field]: true }));
 
@@ -103,7 +106,11 @@ export default function GerenciarAtividadesIdoso() {
         setAtividades(list);
       } catch (e) {
         console.error("Erro em GET /api/atividades:", e);
-        setErro(e?.response?.data?.message || e.message || "Erro ao carregar atividades.");
+        setErro(
+          e?.response?.data?.message ||
+            e.message ||
+            "Erro ao carregar atividades."
+        );
       } finally {
         setLoading(false);
       }
@@ -119,7 +126,11 @@ export default function GerenciarAtividadesIdoso() {
           params: { size: 1000, page: 0, sort: "name,asc" },
         });
         const data = res.data;
-        const page = Array.isArray(data?.content) ? data.content : Array.isArray(data) ? data : [];
+        const page = Array.isArray(data?.content)
+          ? data.content
+          : Array.isArray(data)
+          ? data
+          : [];
         setUsuarios(page || []);
       } catch (e) {
         console.error(e);
@@ -139,19 +150,29 @@ export default function GerenciarAtividadesIdoso() {
     });
   }, [atividades, data]);
 
-  // detectar conflito de horário
+  // detectar conflito de horário (ignorando a própria atividade se estiver editando)
   const conflitoExistente = useMemo(() => {
     if (!data || !inicio || !fim) return null;
     const iniMin = timeToMinutes(inicio);
     const fimMin = timeToMinutes(fim);
     if (!(iniMin < fimMin)) return null;
+
     for (const a of atividadesDoDia) {
-      const aIni = timeToMinutes(a.horarioInicio || a.horario_inicio || a.inicio || a.horaInicio || "00:00");
-      const aFim = timeToMinutes(a.horarioFim || a.horario_fim || a.fim || a.horaFim || "00:00");
+      if (editingId && a.id === editingId) continue; // ignora a própria
+      const aIni = timeToMinutes(
+        a.horarioInicio ||
+          a.horario_inicio ||
+          a.inicio ||
+          a.horaInicio ||
+          "00:00"
+      );
+      const aFim = timeToMinutes(
+        a.horarioFim || a.horario_fim || a.fim || a.horaFim || "00:00"
+      );
       if (overlaps(iniMin, fimMin, aIni, aFim)) return a;
     }
     return null;
-  }, [atividadesDoDia, data, inicio, fim]);
+  }, [atividadesDoDia, data, inicio, fim, editingId]);
 
   // validação agregada
   const camposInvalidos = useMemo(() => {
@@ -169,7 +190,21 @@ export default function GerenciarAtividadesIdoso() {
     return invalid;
   }, [nome, data, inicio, fim, responsavelId, conflitoExistente]);
 
-  // submit
+  // limpar formulário / sair do modo edição
+  const resetForm = () => {
+    setNome("");
+    setData("");
+    setInicio("");
+    setFim("");
+    setResponsavelId("");
+    setObservacoes("");
+    setTouched({});
+    setErro("");
+    setSucesso("");
+    setEditingId(null);
+  };
+
+  // submit (criar ou atualizar)
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSucesso("");
@@ -189,7 +224,9 @@ export default function GerenciarAtividadesIdoso() {
     dataAtual.setHours(0, 0, 0, 0);
     dataSelecionada.setHours(0, 0, 0, 0);
     if (dataSelecionada < dataAtual) {
-      setErro("Não é permitido cadastrar atividades para datas anteriores ao dia atual.");
+      setErro(
+        "Não é permitido cadastrar atividades para datas anteriores ao dia atual."
+      );
       return;
     }
 
@@ -214,34 +251,115 @@ export default function GerenciarAtividadesIdoso() {
     };
 
     try {
-        setLoading(true);
+      setLoading(true);
+
+      if (editingId) {
+        // 🔄 ATUALIZAR
+        const { data: atualizado } = await api.put(
+          `/api/atividades/${editingId}`,
+          payload
+        );
+
+        const normalizado = {
+          ...atualizado,
+          responsavelId:
+            atualizado?.responsavelId ??
+            atualizado?.responsavel_id ??
+            atualizado?.responsavel?.id ??
+            Number(responsavelId),
+        };
+
+        setAtividades((prev) =>
+          prev.map((a) => (a.id === editingId ? normalizado : a))
+        );
+        setSucesso("Atividade atualizada com sucesso!");
+        setEditingId(null);
+      } else {
+        // 🆕 CRIAR
         const { data: criado } = await api.post("/api/atividades", payload);
         const normalizado = {
-        ...criado,
-        responsavelId:
+          ...criado,
+          responsavelId:
             criado?.responsavelId ??
             criado?.responsavel_id ??
             criado?.responsavel?.id ??
-            Number(responsavelId) // fallback do que foi escolhido no form
+            Number(responsavelId),
         };
 
         setAtividades((prev) => [...prev, normalizado]);
         setSucesso("Atividade cadastrada com sucesso!");
+      }
 
-        // limpar todos os campos após salvar
-        setNome("");
-        setData("");
-        setInicio("");
-        setFim("");
-        setResponsavelId("");
-        setObservacoes("");
-        setTouched({});
+      // limpar todos os campos após salvar
+      resetForm();
     } catch (e) {
-        setErro(e?.response?.data?.message || e.message || "Erro ao salvar atividade.");
+      setErro(
+        e?.response?.data?.message ||
+          e.message ||
+          "Erro ao salvar atividade."
+      );
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
+
+  // excluir atividade
+  const handleDelete = async (atividade) => {
+    if (!window.confirm("Deseja realmente excluir esta atividade?")) return;
+    try {
+      await api.delete(`/api/atividades/${atividade.id}`);
+      setAtividades((prev) => prev.filter((a) => a.id !== atividade.id));
+
+      // se eu estiver editando essa mesma atividade, saio do modo edição
+      if (editingId === atividade.id) {
+        resetForm();
+      }
+    } catch (e) {
+      console.error("Erro ao excluir atividade:", e);
+      alert("Erro ao excluir atividade.");
+    }
+  };
+
+  // entrar em modo edição ao clicar em "Editar"
+  const handleEditClick = (a) => {
+    const dStr = String(a.data || "");
+    let dataISO = "";
+    if (dStr.includes("T")) dataISO = dStr.slice(0, 10);
+    else if (dStr.includes("/")) dataISO = dStr.split("/").reverse().join("-");
+    else dataISO = dStr;
+
+    const iniRaw =
+      a.horario_inicio || a.horarioInicio || a.inicio || a.horaInicio || "";
+    const fimRaw =
+      a.horario_fim || a.horarioFim || a.fim || a.horaFim || "";
+
+    const ini = iniRaw ? String(iniRaw).slice(0, 5) : "";
+    const fim = fimRaw ? String(fimRaw).slice(0, 5) : "";
+
+    const respId =
+      a.responsavel?.id ?? a.responsavelId ?? a.responsavel_id ?? "";
+
+    setNome(a.nome || a.titulo || "");
+    setData(dataISO || "");
+    setInicio(ini);
+    setFim(fim);
+    setResponsavelId(respId ? String(respId) : "");
+    setObservacoes(a.observacoes || "");
+    setTouched({});
+    setErro("");
+    setSucesso("");
+    setEditingId(a.id);
+  };
+
+  const atividadesOrdenadas = useMemo(
+    () =>
+      atividades
+        .slice()
+        .sort((a, b) => parseDataHora(a) - parseDataHora(b)),
+    [atividades]
+  );
+
+  const destaqueAnot = conflitoExistente;
 
   return (
     <div className="home-root">
@@ -257,14 +375,18 @@ export default function GerenciarAtividadesIdoso() {
               </div>
               <div>
                 <h1 className="header-title">Gerenciar Atividades</h1>
-                <p className="header-subtitle">Crie, edite e visualize as atividades recreativas.</p>
+                <p className="header-subtitle">
+                  Crie, edite e visualize as atividades recreativas.
+                </p>
               </div>
             </div>
           </header>
 
           {/* CARD DO FORM */}
           <section className="atividade-form-card">
-            <div className="card-title">CADASTRO DE ATIVIDADES</div>
+            <div className="card-title">
+              {editingId ? "EDIÇÃO DE ATIVIDADE" : "CADASTRO DE ATIVIDADES"}
+            </div>
 
             {!!erro && <div className="alert error">{erro}</div>}
             {!!sucesso && <div className="alert success">{sucesso}</div>}
@@ -284,7 +406,9 @@ export default function GerenciarAtividadesIdoso() {
                     placeholder="Ex.: Bingo Musical"
                   />
                   {touched.nome && !nome.trim() && (
-                    <small className="req">Informe o nome da atividade.</small>
+                    <small className="req">
+                      Informe o nome da atividade.
+                    </small>
                   )}
                 </div>
 
@@ -298,7 +422,9 @@ export default function GerenciarAtividadesIdoso() {
                     onChange={(e) => setData(e.target.value)}
                     onBlur={() => markTouched("data")}
                   />
-                  {touched.data && !data && <small className="req">Escolha a data.</small>}
+                  {touched.data && !data && (
+                    <small className="req">Escolha a data.</small>
+                  )}
                 </div>
 
                 <div className="field">
@@ -312,7 +438,9 @@ export default function GerenciarAtividadesIdoso() {
                     onBlur={() => markTouched("inicio")}
                   />
                   {touched.inicio && !inicio && (
-                    <small className="req">Defina o horário de início.</small>
+                    <small className="req">
+                      Defina o horário de início.
+                    </small>
                   )}
                 </div>
 
@@ -327,10 +455,14 @@ export default function GerenciarAtividadesIdoso() {
                     onBlur={() => markTouched("fim")}
                   />
                   {touched.fim && !fim && (
-                    <small className="req">Defina o horário de término.</small>
+                    <small className="req">
+                      Defina o horário de término.
+                    </small>
                   )}
                   {inicio && fim && timeToMinutes(inicio) >= timeToMinutes(fim) && (
-                    <small className="req">O término deve ser maior que o início.</small>
+                    <small className="req">
+                      O término deve ser maior que o início.
+                    </small>
                   )}
                 </div>
 
@@ -346,7 +478,9 @@ export default function GerenciarAtividadesIdoso() {
                   >
                     <option value="">Selecione</option>
                     {usuarios
-                      .filter((u) => (u.role || "").toLowerCase() === "funcionario")
+                      .filter(
+                        (u) => (u.role || "").toLowerCase() === "funcionario"
+                      )
                       .map((u) => (
                         <option key={String(u.id)} value={String(u.id)}>
                           {u.name || u.nome}
@@ -370,84 +504,142 @@ export default function GerenciarAtividadesIdoso() {
                 </div>
               </div>
 
-              {conflitoExistente && (
-                <div className="alert" style={{ background: "#fff7ed", border: "1px solid #fde68a", color: "#92400e" }}>
-                  Conflito: já existe uma atividade (<strong>{conflitoExistente.nome || conflitoExistente.titulo || "sem nome"}</strong>)
-                  em {formatISOToBR(conflitoExistente.data || conflitoExistente.dataAtividade)} de{" "}
-                  {conflitoExistente.horarioInicio || conflitoExistente.horario_inicio || conflitoExistente.inicio} a{" "}
-                  {conflitoExistente.horarioFim || conflitoExistente.horario_fim || conflitoExistente.fim}.
+              {destaqueAnot && (
+                <div
+                  className="alert"
+                  style={{
+                    background: "#fff7ed",
+                    border: "1px solid #fde68a",
+                    color: "#92400e",
+                  }}
+                >
+                  Conflito: já existe uma atividade (
+                  <strong>
+                    {destaqueAnot.nome ||
+                      destaqueAnot.titulo ||
+                      "sem nome"}
+                  </strong>
+                  ) em{" "}
+                  {formatISOToBR(
+                    destaqueAnot.data || destaqueAnot.dataAtividade
+                  )}{" "}
+                  de{" "}
+                  {destaqueAnot.horarioInicio ||
+                    destaqueAnot.horario_inicio ||
+                    destaqueAnot.inicio}{" "}
+                  a{" "}
+                  {destaqueAnot.horarioFim ||
+                    destaqueAnot.horario_fim ||
+                    destaqueAnot.fim}
+                  .
                 </div>
               )}
 
               <div className="actions">
                 <button type="submit" disabled={loading} className="btn-primary">
-                  {loading ? "Salvando..." : "Salvar atividade"}
+                  {loading
+                    ? "Salvando..."
+                    : editingId
+                    ? "Salvar alterações"
+                    : "Salvar atividade"}
                 </button>
                 <button
                   type="button"
                   className="btn-secondary"
-                  onClick={() => {
-                    setNome("");
-                    setData("");
-                    setInicio("");
-                    setFim("");
-                    setResponsavelId("");
-                    setObservacoes("");
-                    setTouched({});
-                    setErro("");
-                    setSucesso("");
-                  }}
+                  onClick={resetForm}
                 >
-                  Limpar
+                  {editingId ? "Cancelar edição" : "Limpar"}
                 </button>
               </div>
             </form>
           </section>
 
           {/* LISTA / TABELA */}
-            <section className="table-card">
+          <section className="table-card">
             <div className="card-title">TODAS AS ATIVIDADES REGISTRADAS</div>
 
             <div style={{ overflowX: "auto" }}>
-                <table>
+              <table>
                 <thead>
-                    <tr>
+                  <tr>
                     <th>Nome</th>
                     <th>Data</th>
                     <th>Início</th>
                     <th>Término</th>
                     <th>Responsável</th>
-                    </tr>
+                    <th>Ações</th>
+                  </tr>
                 </thead>
                 <tbody>
-                    {atividades.length === 0 && (
+                  {atividadesOrdenadas.length === 0 && (
                     <tr>
-                        <td colSpan={5} style={{ color: "#6b7280", paddingTop: 10 }}>
+                      <td
+                        colSpan={6}
+                        style={{ color: "#6b7280", paddingTop: 10 }}
+                      >
                         Nenhuma atividade cadastrada.
-                        </td>
+                      </td>
                     </tr>
-                    )}
+                  )}
 
-                    {atividades
-                    .slice()
-                    .sort((a, b) => parseDataHora(a) - parseDataHora(b)) // mais recente primeiro
-                    .map((a) => (
-                        <tr key={a.id}>
-                        <td>{a.nome || a.titulo || "(sem nome)"}</td>
-                        <td>{String(a.data).includes("/") ? a.data : formatISOToBR(a.data)}</td>
-                        <td>{a.horario_inicio || a.horarioInicio || a.inicio || a.horaInicio || ""}</td>
-                        <td>{a.horario_fim || a.horarioFim || a.fim || a.horaFim || ""}</td>
-                        <td>{getResponsavelNome(a, funcByIdFuncionario)}</td>
-                        </tr>
-                    ))}
+                  {atividadesOrdenadas.map((a) => (
+                    <tr key={a.id}>
+                      <td>{a.nome || a.titulo || "(sem nome)"}</td>
+                      <td>
+                        {String(a.data).includes("/")
+                          ? a.data
+                          : formatISOToBR(a.data)}
+                      </td>
+                      <td>
+                        {a.horario_inicio ||
+                          a.horarioInicio ||
+                          a.inicio ||
+                          a.horaInicio ||
+                          ""}
+                      </td>
+                      <td>
+                        {a.horario_fim ||
+                          a.horarioFim ||
+                          a.fim ||
+                          a.horaFim ||
+                          ""}
+                      </td>
+                      <td>{getResponsavelNome(a, funcByIdFuncionario)}</td>
+                      <td>
+                        <button
+                          type="button"
+                          className="btn-table-edit"
+                          onClick={() => handleEditClick(a)}
+                        >
+                          Editar
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-table-delete"
+                          onClick={() => handleDelete(a)}
+                          style={{ marginLeft: 8 }}
+                        >
+                          Excluir
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
-                </table>
+              </table>
             </div>
 
             {loading && (
-                <p style={{ fontSize: 12, color: "#6b7280", marginTop: 12 }}>Carregando atividades...</p>
+              <p
+                style={{
+                  fontSize: 12,
+                  color: "#6b7280",
+                  marginTop: 12,
+                }}
+              >
+                Carregando atividades...
+              </p>
             )}
-            </section>
+          </section>
         </div>
       </div>
     </div>
