@@ -1,0 +1,195 @@
+/* Cores iguais ao Login.jsx */
+:root {
+    --primary: #202C4B;
+    --secondary: #5C79C2;
+    --accent: #D8E0F7;
+    --bgForm: #eee8e8;
+    --textDark: #1d2440;
+    --light: #FFFFFF;
+    --danger: #b3261e;
+}
+
+/* Container geral */
+.forgot-container {
+    display: flex;
+    flex-direction: row;
+    width: 100vw;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+/* Header idêntico ao Login */
+.forgot-header {
+    flex: 1 1 55%;
+    background-color: var(--secondary);
+    color: var(--light);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 48px;
+    text-align: center;
+}
+
+.logo-img {
+    width: 150px;
+    margin-bottom: 20px;
+}
+
+.header-title {
+    font-size: 4rem;
+    font-weight: 800;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+}
+
+.header-subtitle {
+    font-size: 1.5rem;
+    margin-top: .5rem;
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+}
+
+/* Área do formulário */
+.forgot-form-area {
+    flex: 1 1 45%;
+    background: var(--bgForm);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px 48px;
+}
+
+.forgot-card {
+    width: 100%;
+    max-width: 450px;
+    background: #fff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+.card-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-align: center;
+    color: var(--primary) !important;
+    margin-bottom: .5rem;
+    background: none !important;
+    opacity: 1 !important;
+}
+
+.card-desc {
+    text-align: center;
+    color: var(--secondary);
+    margin-bottom: 1.5rem;
+    font-size: 1.2rem;
+}
+
+.alert-error {
+    background: var(--danger);
+    color: #fff;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+}
+
+.alert-success {
+    background: #1b8f3b;
+    color: #fff;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+}
+
+/* Wrapper do input */
+.input-wrapper {
+    display: flex;
+    align-items: center;
+    background: var(--accent);
+    border: 2px solid var(--secondary);
+    border-radius: 10px;
+    padding: .75rem 1rem;
+    margin-bottom: 1.5rem;
+    transition: .3s;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
+}
+
+.input-wrapper.focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 8px rgba(92,64,51,0.6);
+}
+
+.input-icon {
+    font-size: 22px;
+    color: var(--textDark);
+    margin-right: 12px;
+}
+
+.input-wrapper input {
+    background: transparent;
+    border: none;
+    flex: 1;
+    color: var(--textDark);
+    font-size: 18px;
+    outline: none;
+}
+
+/* Botão principal */
+.primary-btn {
+    width: 100%;
+    padding: 1rem;
+    background: var(--primary);
+    border: none;
+    border-radius: 10px;
+    color: var(--light);
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 1rem;
+    transition: .3s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.primary-btn:hover {
+    background: var(--secondary);
+}
+
+.primary-btn:disabled {
+    background: gray;
+    cursor: not-allowed;
+}
+
+/* Botões secundários */
+.center-text {
+    text-align: center;
+}
+
+.link-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 16px;
+    text-decoration: underline;
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .forgot-container {
+        flex-direction: column;
+    }
+
+    .forgot-header {
+        padding: 24px;
+    }
+
+    .header-title {
+        font-size: 2.5rem;
+    }
+
+    .card-title {
+        font-size: 2rem;
+    }
+}
