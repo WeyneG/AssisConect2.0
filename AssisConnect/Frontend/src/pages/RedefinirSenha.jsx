@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./RedefinirSenha.css";
 
+const API_BASE_URL = "http://localhost:8080"; 
+
 export default function RedefinirSenha() {
     const navigate = useNavigate();
+    const location = useLocation();
 
+    const [token, setToken] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
@@ -18,16 +22,32 @@ export default function RedefinirSenha() {
 
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
+  
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const urlToken = params.get("token");
+        if (!urlToken) {
+            setError("Token de redefinição inválido ou ausente.");
+        } else {
+            setToken(urlToken);
+        }
+    }, [location.search]);
+
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
         setSuccess("");
+
+        if (!token) {
+            setError("Token de redefinição não encontrado.");
+            return;
+        }
 
         if (password.length < 6) {
             setError("A nova senha deve ter pelo menos 6 caracteres.");
@@ -39,13 +59,36 @@ export default function RedefinirSenha() {
             return;
         }
 
-        // VISUAL apenas — backend vai implementar a lógica real
-        setSuccess("Sua senha foi redefinida com sucesso!");
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    token: token,
+                    newPassword: password,
+                }),
+            });
+
+            const text = await response.text();
+
+            if (!response.ok) {
+                setError(text || "Não foi possível redefinir a senha.");
+                return;
+            }
+
+            setSuccess(text || "Sua senha foi redefinida com sucesso!");
+        
+            setTimeout(() => navigate("/login"), 3000);
+        } catch (err) {
+            console.error(err);
+            setError("Erro ao comunicar com o servidor. Tente novamente em instantes.");
+        }
     };
 
     return (
         <div className="reset-container">
-
             {/* Header lateral igual ao login */}
             <div className="reset-header">
                 <img
@@ -67,16 +110,11 @@ export default function RedefinirSenha() {
                         Insira sua nova senha abaixo.
                     </p>
 
-                    {error && (
-                        <div className="alert-error">{error}</div>
-                    )}
+                    {error && <div className="alert-error">{error}</div>}
 
-                    {success && (
-                        <div className="alert-success">{success}</div>
-                    )}
+                    {success && <div className="alert-success">{success}</div>}
 
                     <form onSubmit={handleSubmit}>
-
                         {/* Nova Senha */}
                         <div
                             className={`input-wrapper ${
@@ -145,7 +183,6 @@ export default function RedefinirSenha() {
                                 Voltar ao login
                             </button>
                         </div>
-
                     </form>
                 </div>
             </div>
