@@ -19,7 +19,7 @@
 }
 
 /* Header idêntico ao Login */
-.forgot-header {
+.forgot-container .forgot-header {
     flex: 1 1 55%;
     background-color: var(--secondary);
     color: var(--light);
@@ -31,25 +31,25 @@
     text-align: center;
 }
 
-.logo-img {
+.forgot-container .logo-img {
     width: 150px;
     margin-bottom: 20px;
 }
 
-.header-title {
+.forgot-container .header-title {
     font-size: 4rem;
     font-weight: 800;
     text-shadow: 2px 2px 6px rgba(0,0,0,0.3);
 }
 
-.header-subtitle {
+.forgot-container .header-subtitle {
     font-size: 1.5rem;
     margin-top: .5rem;
     text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
 }
 
 /* Área do formulário */
-.forgot-form-area {
+.forgot-container .forgot-form-area {
     flex: 1 1 45%;
     background: var(--bgForm);
     display: flex;
@@ -58,7 +58,7 @@
     padding: 24px 48px;
 }
 
-.forgot-card {
+.forgot-container .forgot-card {
     width: 100%;
     max-width: 450px;
     background: #fff;
@@ -67,7 +67,7 @@
     box-shadow: 0 6px 20px rgba(0,0,0,0.15);
 }
 
-.card-title {
+.forgot-container .card-title {
     font-size: 2.5rem;
     font-weight: 700;
     text-align: center;
@@ -77,14 +77,14 @@
     opacity: 1 !important;
 }
 
-.card-desc {
+.forgot-container .card-desc {
     text-align: center;
     color: var(--secondary);
     margin-bottom: 1.5rem;
     font-size: 1.2rem;
 }
 
-.alert-error {
+.forgot-container .alert-error {
     background: var(--danger);
     color: #fff;
     padding: 1rem;
@@ -92,7 +92,7 @@
     margin-bottom: 1rem;
 }
 
-.alert-success {
+.forgot-container .alert-success {
     background: #1b8f3b;
     color: #fff;
     padding: 1rem;
@@ -101,7 +101,7 @@
 }
 
 /* Wrapper do input */
-.input-wrapper {
+.forgot-container .input-wrapper {
     display: flex;
     align-items: center;
     background: var(--accent);
@@ -113,18 +113,18 @@
     box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
 }
 
-.input-wrapper.focus {
+.forgot-container .input-wrapper.focus {
     border-color: var(--primary);
     box-shadow: 0 0 8px rgba(92,64,51,0.6);
 }
 
-.input-icon {
+.forgot-container .input-icon {
     font-size: 22px;
     color: var(--textDark);
     margin-right: 12px;
 }
 
-.input-wrapper input {
+.forgot-container .input-wrapper input {
     background: transparent;
     border: none;
     flex: 1;
@@ -134,7 +134,7 @@
 }
 
 /* Botão principal */
-.primary-btn {
+.forgot-container .primary-btn {
     width: 100%;
     padding: 1rem;
     background: var(--primary);
@@ -149,21 +149,21 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
-.primary-btn:hover {
+.forgot-container .primary-btn:hover {
     background: var(--secondary);
 }
 
-.primary-btn:disabled {
+.forgot-container .primary-btn:disabled {
     background: gray;
     cursor: not-allowed;
 }
 
 /* Botões secundários */
-.center-text {
+.forgot-container .center-text {
     text-align: center;
 }
 
-.link-btn {
+.forgot-container .link-btn {
     background: none;
     border: none;
     cursor: pointer;
@@ -181,15 +181,15 @@
         flex-direction: column;
     }
 
-    .forgot-header {
+    .forgot-container .forgot-header {
         padding: 24px;
     }
 
-    .header-title {
+    .forgot-container .header-title {
         font-size: 2.5rem;
     }
 
-    .card-title {
+    .forgot-container .card-title {
         font-size: 2rem;
     }
 }

@@ -18,7 +18,7 @@
 }
 
 /* Cabeçalho lateral */
-.reset-header {
+.reset-container .reset-header {
     flex: 1 1 55%;
     background-color: var(--secondary);
     color: var(--light);
@@ -30,25 +30,25 @@
     text-align: center;
 }
 
-.logo-img {
+.reset-container .logo-img {
     width: 150px;
     margin-bottom: 20px;
 }
 
-.header-title {
+.reset-container .header-title {
     font-size: 4rem;
     font-weight: 800;
     text-shadow: 2px 2px 6px rgba(0,0,0,0.3);
 }
 
-.header-subtitle {
+.reset-container .header-subtitle {
     font-size: 1.5rem;
     margin-top: .5rem;
     text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
 }
 
 /* Área do formulário */
-.reset-form-area {
+.reset-container .reset-form-area {
     flex: 1 1 45%;
     background: var(--bgForm);
     display: flex;
@@ -57,7 +57,7 @@
     padding: 24px 48px;
 }
 
-.reset-card {
+.reset-container .reset-card {
     width: 100%;
     max-width: 450px;
     background: #fff;
@@ -66,7 +66,7 @@
     box-shadow: 0 6px 20px rgba(0,0,0,0.15);
 }
 
-.card-title {
+.reset-container .card-title {
     color: var(--primary);
     font-size: 2.5rem;
     text-align: center;
@@ -74,7 +74,7 @@
     margin-bottom: .5rem;
 }
 
-.card-desc {
+.reset-container .card-desc {
     text-align: center;
     color: var(--secondary);
     margin-bottom: 1.5rem;
@@ -82,7 +82,7 @@
 }
 
 /* Alertas */
-.alert-error {
+.reset-container .alert-error {
     background: var(--danger);
     color: #fff;
     padding: 1rem;
@@ -90,7 +90,7 @@
     margin-bottom: 1rem;
 }
 
-.alert-success {
+.reset-container .alert-success {
     background: #1b8f3b;
     color: #fff;
     padding: 1rem;
@@ -99,7 +99,7 @@
 }
 
 /* Inputs */
-.input-wrapper {
+.reset-container .input-wrapper {
     display: flex;
     align-items: center;
     background: var(--accent);
@@ -111,25 +111,25 @@
     box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
 }
 
-.input-wrapper.focus {
+.reset-container .input-wrapper.focus {
     border-color: var(--primary);
     box-shadow: 0 0 8px rgba(92,64,51,0.6);
 }
 
-.input-icon {
+.reset-container .input-icon {
     font-size: 22px;
     color: var(--textDark);
     margin-right: 12px;
 }
 
-.toggle-eye {
+.reset-container .toggle-eye {
     font-size: 22px;
     color: var(--textDark);
     margin-left: 12px;
     cursor: pointer;
 }
 
-.input-wrapper input {
+.reset-container .input-wrapper input {
     background: transparent;
     border: none;
     flex: 1;
@@ -139,7 +139,7 @@
 }
 
 /* Botão principal */
-.primary-btn {
+.reset-container .primary-btn {
     width: 100%;
     padding: 1rem;
     background: var(--primary);
@@ -154,16 +154,16 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
-.primary-btn:hover {
+.reset-container .primary-btn:hover {
     background: var(--secondary);
 }
 
 /* Botão texto */
-.center-text {
+.reset-container .center-text {
     text-align: center;
 }
 
-.link-btn {
+.reset-container .link-btn {
     background: none;
     border: none;
     cursor: pointer;
@@ -180,13 +180,13 @@
     .reset-container {
         flex-direction: column;
     }
-    .reset-header {
+    .reset-container .reset-header {
         padding: 24px;
     }
-    .header-title {
+    .reset-container .header-title {
         font-size: 2.5rem;
     }
-    .card-title {
+    .reset-container .card-title {
         font-size: 2rem;
     }
 }
