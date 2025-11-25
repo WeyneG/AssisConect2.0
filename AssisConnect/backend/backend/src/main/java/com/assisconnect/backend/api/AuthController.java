@@ -22,8 +22,8 @@ public class AuthController {
     private final PasswordResetService passwordResetService;
 
     public AuthController(UserService service,
-                          JwtUtil jwt,
-                          PasswordResetService passwordResetService) {
+            JwtUtil jwt,
+            PasswordResetService passwordResetService) {
         this.service = service;
         this.jwt = jwt;
         this.passwordResetService = passwordResetService;
@@ -48,13 +48,17 @@ public class AuthController {
     public ResponseEntity<String> forgotPassword(
             @Valid @RequestBody ForgotPasswordRequest req) {
 
-        passwordResetService.requestPasswordReset(req.email());
-      
-        return ResponseEntity.ok(
-                "Se o e-mail estiver cadastrado, você receberá um link para redefinir a senha.");
+        try {
+            passwordResetService.requestPasswordReset(req.email());
+            return ResponseEntity.ok(
+                    "Se o e-mail estiver cadastrado, você receberá um link para redefinir a senha.");
+        } catch (Exception e) {
+            e.printStackTrace(); // loga no console
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("ERRO NO BACKEND: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+        }
     }
 
-    
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(
             @Valid @RequestBody ResetPasswordRequest req) {
