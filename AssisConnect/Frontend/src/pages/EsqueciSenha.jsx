@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./EsqueciSenha.css";
 
+const API_BASE_URL = "http://localhost:8080"; 
+
 export default function EsqueciSenha() {
     const navigate = useNavigate();
 
@@ -25,7 +27,7 @@ export default function EsqueciSenha() {
     // contador do cooldown
     useEffect(() => {
         if (cooldown <= 0) return;
-        const timer = setTimeout(() => setCooldown(cooldown - 1), 1000);
+        const timer = setTimeout(() => setCooldown((prev) => prev - 1), 1000);
         return () => clearTimeout(timer);
     }, [cooldown]);
 
@@ -50,12 +52,28 @@ export default function EsqueciSenha() {
         }
 
         try {
-            // simulação do envio do link
-            // substitua pela sua API real: await api.post('/forgot-password', { email });
-            setSuccess("Um link de redefinição foi enviado ao seu email.");
+            const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email }),
+            });
+
+            const text = await response.text();
+
+            if (!response.ok) {
+                setError(text || "Não foi possível enviar o email, tente novamente.");
+                return;
+            }
+
+            setSuccess(
+                text || "Se o email estiver cadastrado, você receberá um link de redefinição."
+            );
             setCooldown(60); // trava de 1 minuto
         } catch (err) {
-            setError("Não foi possível enviar o email, tente novamente.");
+            console.error(err);
+            setError("Erro ao comunicar com o servidor. Tente novamente em instantes.");
         }
     };
 
@@ -82,21 +100,15 @@ export default function EsqueciSenha() {
                         Insira seu email para receber o link de redefinição.
                     </p>
 
-                    {error && (
-                        <div className="alert-error">
-                            {error}
-                        </div>
-                    )}
+                    {error && <div className="alert-error">{error}</div>}
 
-                    {success && (
-                        <div className="alert-success">
-                            {success}
-                        </div>
-                    )}
+                    {success && <div className="alert-success">{success}</div>}
 
                     <form onSubmit={handleSend}>
                         <div
-                            className={`input-wrapper ${focusField === "email" ? "focus" : ""}`}
+                            className={`input-wrapper ${
+                                focusField === "email" ? "focus" : ""
+                            }`}
                             onFocus={() => setFocusField("email")}
                             onBlur={() => setFocusField(null)}
                         >
