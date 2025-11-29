@@ -218,17 +218,15 @@ export default function GerenciarAtividadesIdoso() {
       observacoes: true,
     });
 
-    // não permitir datas passadas
-    const dataSelecionada = new Date(data);
-    const dataAtual = new Date();
-    dataAtual.setHours(0, 0, 0, 0);
-    dataSelecionada.setHours(0, 0, 0, 0);
-    if (dataSelecionada < dataAtual) {
-      setErro(
-        "Não é permitido cadastrar atividades para datas anteriores ao dia atual."
-      );
-      return;
-    }
+    
+const hojeISO = new Date().toISOString().split("T")[0]; 
+if (data && data < hojeISO) {
+  setErro(
+    "Não é permitido cadastrar atividades para datas anteriores ao dia atual."
+  );
+  return;
+}
+
 
     if (Object.keys(camposInvalidos).length > 0) {
       setErro(
