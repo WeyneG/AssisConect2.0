@@ -39,7 +39,7 @@ public class AtividadeController {
         this.alocacaoService = alocacaoService;
     }
 
-    // ✅ AGORA ACEITA ?idosoId= PARA LISTAR ATIVIDADES DO IDOSO
+   
     @GetMapping
     public ResponseEntity<List<AtividadeDTO>> getAllAtividades(
             @RequestParam(value = "idosoId", required = false) Long idosoId) {
