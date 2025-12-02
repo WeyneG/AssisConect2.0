@@ -70,12 +70,18 @@ img{display:block;}
 .sb-icon{ width:26px; height:26px; filter:brightness(0) invert(1); object-fit:contain; }
 
 .sb-avatar{
-  width:50px; height:50px; border-radius:6px; overflow:hidden;
+  width:50px; height:50px; border-radius:45%; overflow:hidden;
   border:2px solid #fff; background:#fff; cursor:pointer; transition:.2s;
 }
 .sb-avatar:hover{ transform:scale(1.05); }
 .sb-avatar img{ width:100%; height:100%; object-fit:cover; transition:.25s; }
 .sb-avatar.active{ box-shadow:0 0 8px rgba(255,255,255,.6); }
+
+.sb-avatar img {
+  width:100%;
+  height:120%;
+  object-fit:cover;
+}
 
 /* ========================
    Página
@@ -94,12 +100,22 @@ img{display:block;}
 ======================== */
 .content-grid{
   display:grid;
-  grid-template-columns:2fr 1fr 1fr;        /* esquerda grande + 2 colunas */
+  grid-template-columns:1fr 4fr 3fr;
   grid-template-areas:
     "hero hero hero"
-    "kpi  menu notices"
-    "birthday birthday birthday";
+    "kpi menu birthday";
   gap:20px;
+}
+
+.card-counter { grid-area: kpi; }
+.card-menu    { grid-area: menu; }
+.card-birthday { grid-area: birthday; }
+
+/* Altura mínima dos cards principais */
+.card-counter,
+.card-menu,
+.card-birthday {
+  min-height: 600px; /* você pode aumentar para 300, 340, 380... */
 }
 
 /* ========================
@@ -121,7 +137,7 @@ img{display:block;}
 .card.card-hero{
   grid-area:hero;
   display:flex; align-items:center; gap:20px;
-  background:linear-gradient(90deg,var(--primary) 0%,#6f95e8 100%) !important;
+  background: var(--primary) !important;
   color:#fff !important;
   border:none !important;
 }

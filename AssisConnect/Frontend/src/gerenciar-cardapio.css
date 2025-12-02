@@ -27,7 +27,7 @@
 
 /* HEADER */
 .cardapio-header {
-  background: linear-gradient(90deg, var(--primary) 0%, #7ea3ff 100%);
+  background: var(--primary) !important;
   color: #fff;
   border-radius: 16px;
   padding: 24px 30px;
