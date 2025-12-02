@@ -170,34 +170,6 @@ export default function Home() {
           </section>
 
           {}
-          <section className="card card-block card-notices">
-            <header className="block-header">
-              <h2 className="block-title">Avisos</h2>
-              <div className="block-subtitle">do dia</div>
-            </header>
-            <ul className="notice-list">
-              <li className="notice-item">
-                <div className="notice-title">Carlos Nunes</div>
-                <div className="notice-desc">Fisioterapia às 16h.</div>
-              </li>
-              <li className="notice-item">
-                <div className="notice-title">Joana Cardoso</div>
-                <div className="notice-desc">Tomar remédio às 17h.</div>
-              </li>
-              <li className="notice-item">
-                <div className="notice-title">Maria da Luz</div>
-                <div className="notice-desc">
-                  Novo remédio prescrito pela equipe médica.
-                </div>
-              </li>
-              <li className="notice-item">
-                <div className="notice-title">Jorge Henrique</div>
-                <div className="notice-desc">
-                  Melhora percebida da labirintite.
-                </div>
-              </li>
-            </ul>
-          </section>
 
           {/* Aniversariantes */}
           <section className="card card-birthday">

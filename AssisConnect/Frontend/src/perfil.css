@@ -16,7 +16,7 @@
 
 /* HEADER */
 .pg-perfil .perfil-header {
-  background: linear-gradient(90deg, var(--primary) 0%, #7ea3ff 100%);
+  background: var(--primary) !important;
   color: #fff;
   border-radius: 16px;
   padding: 24px 30px;
@@ -38,15 +38,15 @@
 .pg-perfil .header-icon {
   width: 60px;
   height: 60px;
-  border-radius: 50%;
+  border-radius: 45%;
   background: rgba(255, 255, 255, 0.18);
   display: grid;
   place-items: center;
 }
 
 .pg-perfil .header-icon img {
-  width: 28px;
-  filter: brightness(0) invert(1);
+  width: 60px;
+  filter: none;
 }
 
 .pg-perfil .header-title {
